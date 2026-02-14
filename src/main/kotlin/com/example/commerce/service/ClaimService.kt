@@ -8,34 +8,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 
-interface PaymentGateway {
-    fun approve(amount: BigDecimal, method: PaymentMethod): String // Returns authId
-    fun cancel(paymentId: String, amount: BigDecimal, reason: String)
-    fun partialCancel(paymentId: String, amount: BigDecimal, reason: String)
-}
-
-// Mock Implementation for testing
-@Service
-class MockPaymentGateway : PaymentGateway {
-    override fun approve(amount: BigDecimal, method: PaymentMethod): String {
-        println("PG: Approved $amount via $method")
-        return "AUTH_${System.currentTimeMillis()}"
-    }
-
-    override fun cancel(paymentId: String, amount: BigDecimal, reason: String) {
-        println("PG: Cancelled $amount for $paymentId. Reason: $reason")
-    }
-
-    override fun partialCancel(paymentId: String, amount: BigDecimal, reason: String) {
-        println("PG: Partial Cancelled $amount for $paymentId. Reason: $reason")
-    }
-}
-
-data class CancelItem(
-    val productId: String,
-    val quantity: Int
-)
-
 @Service
 class ClaimService(
     private val paymentRepository: PaymentRepository,

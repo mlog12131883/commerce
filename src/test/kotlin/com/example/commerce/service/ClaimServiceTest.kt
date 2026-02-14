@@ -33,6 +33,8 @@ class ClaimServiceTest {
         
         // Mock save to return the object
         whenever(paymentRepository.save(any())).thenAnswer { it.arguments[0] }
+        whenever(paymentHistoryRepository.save(any())).thenAnswer { it.arguments[0] }
+        whenever(refundRepository.save(any())).thenAnswer { it.arguments[0] }
     }
 
     @Test
@@ -91,6 +93,7 @@ class ClaimServiceTest {
             status = PaymentStatus.APPROVED
         )
         whenever(paymentRepository.findByOrderId("ORD-003")).thenReturn(listOf(bigCouponPayment))
+        whenever(paymentGateway.approve(any(), any())).thenReturn("AUTH_TEST")
         
         val cancelItems = listOf(CancelItem("PROD-A", 1)) // 10000 Amount
 

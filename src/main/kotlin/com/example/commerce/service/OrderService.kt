@@ -9,17 +9,6 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID
 
-data class OrderCommand(
-    val items: List<OrderItemCommand>,
-    val deliveryFee: BigDecimal = BigDecimal.ZERO
-)
-
-data class OrderItemCommand(
-    val productId: String,
-    val price: BigDecimal,
-    val quantity: Int
-)
-
 @Service
 class OrderService(
     private val orderRepository: OrderRepository
@@ -50,18 +39,5 @@ class OrderService(
         
         orderRepository.save(order)
         return orderId
-    }
-}
-
-@Service
-class PointService {
-    fun usePoints(userId: String, amount: BigDecimal) {
-        // Mock Implementation
-        println("PointService: Deducted $amount points from user $userId")
-    }
-    
-    fun restorePoints(userId: String, amount: BigDecimal) {
-        // Mock Implementation
-        println("PointService: Restored $amount points to user $userId")
     }
 }

@@ -4,21 +4,6 @@ import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-enum class PaymentMethod(val isPartialCancelable: Boolean) {
-    CREDIT_CARD(true),
-    KAKAO_PAY(true),
-    NAVER_PAY(true),
-    POINT(true),
-    COUPON(false); // Example of non-partial cancelable
-}
-
-enum class TransactionType {
-    PAYMENT, REFUND
-}
-
-enum class PaymentStatus {
-    APPROVED, CANCELED, PARTIAL_CANCELED
-}
 
 @Entity
 @Table(name = "payment")
