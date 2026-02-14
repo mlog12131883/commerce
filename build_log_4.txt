@@ -1,0 +1,30 @@
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :compileKotlin UP-TO-DATE
+> Task :compileJava NO-SOURCE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :jar UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+
+> Task :compileTestKotlin FAILED
+e: file:///C:/repo/commerce/src/test/kotlin/com/example/commerce/service/ClaimServiceTest.kt:35:45 Too many arguments for 'fun <reified T : Any> any(): T'.
+e: file:///C:/repo/commerce/src/test/kotlin/com/example/commerce/service/ClaimServiceTest.kt:150:35 Unresolved reference 'Mockito'.
+e: file:///C:/repo/commerce/src/test/kotlin/com/example/commerce/service/ClaimServiceTest.kt:150:55 Unresolved reference 'save'.
+e: file:///C:/repo/commerce/src/test/kotlin/com/example/commerce/service/ClaimServiceTest.kt:150:60 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///C:/repo/commerce/src/test/kotlin/com/example/commerce/service/ClaimServiceTest.kt:150:64 Too many arguments for 'fun <reified T : Any> any(): T'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileTestKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2s
+4 actionable tasks: 1 executed, 3 up-to-date

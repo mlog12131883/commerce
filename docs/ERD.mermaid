@@ -1,0 +1,51 @@
+erDiagram
+    ORDER ||--|{ ORDER_ITEM : contains
+    ORDER ||--|{ PAYMENT : "paid by"
+    PAYMENT ||--|{ PAYMENT_HISTORY : tracks
+    PAYMENT ||--|{ REFUND : initiates
+
+    ORDER {
+        string orderId PK
+        decimal totalAmount
+        decimal deliveryFee
+        datetime createdAt
+    }
+
+    ORDER_ITEM {
+        long seq PK
+        string orderId FK
+        string productId
+        decimal productPrice
+        int quantity
+        decimal discountPrice
+    }
+
+    PAYMENT {
+        long paymentId PK
+        string orderId FK
+        decimal originalAmount "Old: pay_price"
+        decimal repaymentAmount "Old: pay_due_amt"
+        decimal totalRefundAmount "Old: refund_price"
+        string paymentMethod "Enum: CREDIT_CARD, POINT, etc."
+        string transactionType "PAYMENT / REFUND"
+        boolean isPartialCancelable "Old: poss_yn"
+        boolean isSettled "Old: pay_fin_yn"
+        string status "APPROVED / CANCELED / PARTIAL"
+    }
+
+    PAYMENT_HISTORY {
+        long historyId PK
+        long paymentId FK
+        string previousStatus
+        string newStatus
+        string reason
+        datetime createdAt
+    }
+
+    REFUND {
+        long refundId PK
+        long paymentId FK
+        decimal refundAmount
+        string reason
+        datetime requestedAt
+    }
