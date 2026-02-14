@@ -1,11 +1,12 @@
-package com.example.commerce.domain
+package com.example.commerce.adapter.out.persistence.entity
 
+import com.example.commerce.domain.PaymentStatus
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "payment_history")
-data class PaymentHistory(
+data class PaymentHistoryJpaEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val historyId: Long? = null,

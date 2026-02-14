@@ -1,6 +1,6 @@
 package com.example.commerce.application.port.out
 
-import com.example.commerce.domain.Order
+import com.example.commerce.domain.model.Order
 import java.util.Optional
 
 interface OrderPort {

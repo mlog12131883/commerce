@@ -2,8 +2,8 @@ package com.example.commerce.application.service
 
 import com.example.commerce.application.port.`in`.OrderUseCase
 import com.example.commerce.application.port.out.OrderPort
-import com.example.commerce.domain.Order
-import com.example.commerce.domain.OrderItem
+import com.example.commerce.domain.model.Order
+import com.example.commerce.domain.model.OrderItem
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -29,7 +29,6 @@ class OrderService(
         
         val orderItems = command.items.map { 
             OrderItem(
-                order = order,
                 productId = it.productId,
                 productPrice = it.price,
                 quantity = it.quantity

@@ -1,8 +1,9 @@
 package com.example.commerce.service
 
-import com.example.commerce.domain.Order
-import com.example.commerce.domain.Payment
+import com.example.commerce.domain.model.Order
+import com.example.commerce.domain.model.Payment
 import com.example.commerce.domain.PaymentMethod
+import com.example.commerce.domain.TransactionType
 import com.example.commerce.application.service.PaymentRequest
 import com.example.commerce.application.service.PaymentService
 import com.example.commerce.application.service.PointService

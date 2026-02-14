@@ -4,7 +4,10 @@ import com.example.commerce.application.port.`in`.PaymentUseCase
 import com.example.commerce.application.port.out.OrderPort
 import com.example.commerce.application.port.out.PaymentGateway
 import com.example.commerce.application.port.out.PaymentPort
-import com.example.commerce.domain.*
+import com.example.commerce.domain.model.Payment
+import com.example.commerce.domain.PaymentMethod
+import com.example.commerce.domain.PaymentStatus
+import com.example.commerce.domain.TransactionType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal

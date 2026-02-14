@@ -5,6 +5,7 @@ import com.example.commerce.application.port.out.PaymentGateway
 import com.example.commerce.application.port.out.PaymentHistoryPort
 import com.example.commerce.application.port.out.PaymentPort
 import com.example.commerce.application.port.out.RefundPort
+import com.example.commerce.domain.model.*
 import com.example.commerce.domain.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -141,7 +142,9 @@ class ClaimService(
         // Save Refund Log
         refundRepository.save(Refund(
             paymentId = payment.paymentId!!,
+            orderId = payment.orderId,
             refundAmount = refundAmount,
+            paymentMethod = payment.paymentMethod,
             reason = reason
         ))
     }

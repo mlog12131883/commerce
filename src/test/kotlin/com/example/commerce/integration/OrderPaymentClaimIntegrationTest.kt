@@ -2,7 +2,7 @@ package com.example.commerce.integration
 
 import com.example.commerce.domain.PaymentMethod
 import com.example.commerce.domain.PaymentStatus
-import com.example.commerce.adapter.out.persistence.PaymentRepository
+import com.example.commerce.adapter.out.persistence.repository.PaymentRepository
 import com.example.commerce.application.service.*
 import com.example.commerce.application.port.out.PaymentGateway
 import org.junit.jupiter.api.Assertions.assertEquals

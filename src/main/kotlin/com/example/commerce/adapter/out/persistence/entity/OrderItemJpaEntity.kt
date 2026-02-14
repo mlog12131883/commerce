@@ -1,18 +1,18 @@
-package com.example.commerce.domain
+package com.example.commerce.adapter.out.persistence.entity
 
 import jakarta.persistence.*
 import java.math.BigDecimal
 
 @Entity
 @Table(name = "order_item")
-data class OrderItem(
+data class OrderItemJpaEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val seq: Long? = null,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    val order: Order,
+    var order: OrderJpaEntity? = null,
 
     @Column(nullable = false)
     val productId: String,
@@ -21,8 +21,8 @@ data class OrderItem(
     val productPrice: BigDecimal,
 
     @Column(nullable = false)
-    var quantity: Int,
+    val quantity: Int,
 
     @Column(nullable = false)
-    var discountPrice: BigDecimal = BigDecimal.ZERO
+    val discountPrice: BigDecimal = BigDecimal.ZERO
 )
