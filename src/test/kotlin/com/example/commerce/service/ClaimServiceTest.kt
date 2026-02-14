@@ -4,9 +4,12 @@ import com.example.commerce.domain.Payment
 import com.example.commerce.domain.PaymentMethod
 import com.example.commerce.domain.PaymentStatus
 import com.example.commerce.domain.TransactionType
-import com.example.commerce.repository.PaymentHistoryRepository
-import com.example.commerce.repository.PaymentRepository
-import com.example.commerce.repository.RefundRepository
+import com.example.commerce.application.service.CancelItem
+import com.example.commerce.application.service.ClaimService
+import com.example.commerce.application.port.out.PaymentGateway
+import com.example.commerce.application.port.out.PaymentHistoryPort
+import com.example.commerce.application.port.out.PaymentPort
+import com.example.commerce.application.port.out.RefundPort
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -22,9 +25,9 @@ import java.util.*
 class ClaimServiceTest {
 
     private lateinit var claimService: ClaimService
-    private val paymentRepository: PaymentRepository = mock()
-    private val paymentHistoryRepository: PaymentHistoryRepository = mock()
-    private val refundRepository: RefundRepository = mock()
+    private val paymentRepository: PaymentPort = mock()
+    private val paymentHistoryRepository: PaymentHistoryPort = mock()
+    private val refundRepository: RefundPort = mock()
     private val paymentGateway: PaymentGateway = mock()
 
     @BeforeEach

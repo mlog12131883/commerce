@@ -1,5 +1,6 @@
-package com.example.commerce.service
+package com.example.commerce.adapter.out.external
 
+import com.example.commerce.application.port.out.PaymentGateway
 import com.example.commerce.domain.PaymentMethod
 import org.springframework.stereotype.Service
 import java.math.BigDecimal

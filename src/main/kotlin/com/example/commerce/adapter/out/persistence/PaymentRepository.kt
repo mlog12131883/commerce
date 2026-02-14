@@ -1,4 +1,4 @@
-package com.example.commerce.repository
+package com.example.commerce.adapter.out.persistence
 
 import com.example.commerce.domain.Payment
 import org.springframework.data.jpa.repository.JpaRepository

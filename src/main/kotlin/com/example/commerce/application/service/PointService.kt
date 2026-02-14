@@ -1,4 +1,4 @@
-package com.example.commerce.service
+package com.example.commerce.application.service
 
 import org.springframework.stereotype.Service
 import java.math.BigDecimal

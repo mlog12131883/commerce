@@ -1,8 +1,10 @@
-package com.example.commerce.service
+package com.example.commerce.application.service
 
+import com.example.commerce.application.port.`in`.PaymentUseCase
+import com.example.commerce.application.port.out.OrderPort
+import com.example.commerce.application.port.out.PaymentGateway
+import com.example.commerce.application.port.out.PaymentPort
 import com.example.commerce.domain.*
-import com.example.commerce.repository.OrderRepository
-import com.example.commerce.repository.PaymentRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -10,14 +12,14 @@ import java.math.BigDecimal
 
 @Service
 class PaymentService(
-    private val orderRepository: OrderRepository,
-    private val paymentRepository: PaymentRepository, // Save result
+    private val orderRepository: OrderPort,
+    private val paymentRepository: PaymentPort, // Save result
     private val paymentGateway: PaymentGateway,      // Remote Call
     private val pointService: PointService           // Remote/Local Service
-) {
+) : PaymentUseCase {
 
     @Transactional
-    fun processPayment(orderId: String, userId: String, paymentRequests: List<PaymentRequest>) {
+    override fun processPayment(orderId: String, userId: String, paymentRequests: List<PaymentRequest>) {
         val order = orderRepository.findById(orderId)
             .orElseThrow { IllegalArgumentException("Order not found") }
 

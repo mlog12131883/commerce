@@ -1,23 +1,25 @@
-package com.example.commerce.service
+package com.example.commerce.application.service
 
+import com.example.commerce.application.port.`in`.ClaimUseCase
+import com.example.commerce.application.port.out.PaymentGateway
+import com.example.commerce.application.port.out.PaymentHistoryPort
+import com.example.commerce.application.port.out.PaymentPort
+import com.example.commerce.application.port.out.RefundPort
 import com.example.commerce.domain.*
-import com.example.commerce.repository.PaymentHistoryRepository
-import com.example.commerce.repository.PaymentRepository
-import com.example.commerce.repository.RefundRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 
 @Service
 class ClaimService(
-    private val paymentRepository: PaymentRepository,
-    private val paymentHistoryRepository: PaymentHistoryRepository,
-    private val refundRepository: RefundRepository,
+    private val paymentRepository: PaymentPort,
+    private val paymentHistoryRepository: PaymentHistoryPort,
+    private val refundRepository: RefundPort,
     private val paymentGateway: PaymentGateway
-) {
+) : ClaimUseCase {
 
     @Transactional
-    fun requestClaim(orderId: String, cancelItems: List<CancelItem>, reason: String) {
+    override fun requestClaim(orderId: String, cancelItems: List<CancelItem>, reason: String) {
         val payments = paymentRepository.findByOrderId(orderId)
             .filter { it.status == PaymentStatus.APPROVED }
             .sortedBy { if (it.paymentMethod == PaymentMethod.POINT) 0 else 1 } // Priority: Point -> Main

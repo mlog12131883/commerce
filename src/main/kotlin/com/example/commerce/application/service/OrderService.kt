@@ -1,8 +1,9 @@
-package com.example.commerce.service
+package com.example.commerce.application.service
 
+import com.example.commerce.application.port.`in`.OrderUseCase
+import com.example.commerce.application.port.out.OrderPort
 import com.example.commerce.domain.Order
 import com.example.commerce.domain.OrderItem
-import com.example.commerce.repository.OrderRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -11,10 +12,10 @@ import java.util.UUID
 
 @Service
 class OrderService(
-    private val orderRepository: OrderRepository
-) {
+    private val orderRepository: OrderPort
+) : OrderUseCase {
     @Transactional
-    fun placeOrder(command: OrderCommand): String {
+    override fun placeOrder(command: OrderCommand): String {
         val orderId = "ORD-${UUID.randomUUID()}"
         val totalAmount = command.items.sumOf { it.price.multiply(BigDecimal(it.quantity)) }
             .add(command.deliveryFee)

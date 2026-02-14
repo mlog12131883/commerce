@@ -3,8 +3,12 @@ package com.example.commerce.service
 import com.example.commerce.domain.Order
 import com.example.commerce.domain.Payment
 import com.example.commerce.domain.PaymentMethod
-import com.example.commerce.repository.OrderRepository
-import com.example.commerce.repository.PaymentRepository
+import com.example.commerce.application.service.PaymentRequest
+import com.example.commerce.application.service.PaymentService
+import com.example.commerce.application.service.PointService
+import com.example.commerce.application.port.out.OrderPort
+import com.example.commerce.application.port.out.PaymentGateway
+import com.example.commerce.application.port.out.PaymentPort
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -15,8 +19,8 @@ import java.util.*
 class PaymentServiceTest {
 
     private lateinit var paymentService: PaymentService
-    private val orderRepository: OrderRepository = mock()
-    private val paymentRepository: PaymentRepository = mock()
+    private val orderRepository: OrderPort = mock()
+    private val paymentRepository: PaymentPort = mock()
     private val paymentGateway: PaymentGateway = mock()
     private val pointService: PointService = mock()
 
