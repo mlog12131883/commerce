@@ -5,6 +5,10 @@ import com.example.commerce.domain.PaymentStatus
 import com.example.commerce.adapter.out.persistence.repository.PaymentRepository
 import com.example.commerce.application.service.*
 import com.example.commerce.application.port.out.PaymentGateway
+import com.example.commerce.application.command.CancelItem
+import com.example.commerce.application.command.OrderCommand
+import com.example.commerce.application.command.OrderItemCommand
+import com.example.commerce.application.command.PaymentRequest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -73,7 +77,7 @@ class OrderPaymentClaimIntegrationTest {
         assertEquals(2, payments.size)
         
         // 4. Request Claim (Cancel Item A: 10,000)
-        val cancelItems = listOf(CancelItem("ITEM-A", 1)) 
+        val cancelItems = listOf(CancelItem("ITEM-A", 1))
         claimService.requestClaim(orderId, cancelItems, "Defective Item")
 
         // 5. Verify Final State

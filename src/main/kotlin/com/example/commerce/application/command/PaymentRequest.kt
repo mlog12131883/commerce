@@ -1,4 +1,4 @@
-package com.example.commerce.application.service
+package com.example.commerce.application.command
 
 import com.example.commerce.domain.PaymentMethod
 import java.math.BigDecimal

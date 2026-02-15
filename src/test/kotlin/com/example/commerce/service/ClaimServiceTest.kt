@@ -5,7 +5,7 @@ import com.example.commerce.domain.PaymentMethod
 import com.example.commerce.domain.PaymentStatus
 import com.example.commerce.domain.TransactionType
 import com.example.commerce.domain.model.Order
-import com.example.commerce.application.service.CancelItem
+import com.example.commerce.application.command.CancelItem
 import com.example.commerce.application.service.ClaimService
 import com.example.commerce.application.port.out.PaymentGateway
 import com.example.commerce.application.port.out.PaymentHistoryPort

@@ -1,5 +1,6 @@
 package com.example.commerce.application.service
 
+import com.example.commerce.application.command.PaymentRequest
 import com.example.commerce.application.port.`in`.PaymentUseCase
 import com.example.commerce.application.port.out.OrderPort
 import com.example.commerce.application.port.out.PaymentGateway

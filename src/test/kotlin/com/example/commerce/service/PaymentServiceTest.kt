@@ -4,7 +4,7 @@ import com.example.commerce.domain.model.Order
 import com.example.commerce.domain.model.Payment
 import com.example.commerce.domain.PaymentMethod
 import com.example.commerce.domain.TransactionType
-import com.example.commerce.application.service.PaymentRequest
+import com.example.commerce.application.command.PaymentRequest
 import com.example.commerce.application.service.PaymentService
 import com.example.commerce.application.service.PointService
 import com.example.commerce.application.port.out.OrderPort
