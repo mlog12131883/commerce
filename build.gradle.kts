@@ -38,6 +38,14 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	// 캐시: L1(Caffeine) + L2(Redis)
+	implementation("org.springframework.boot:spring-boot-starter-cache")
+	implementation("com.github.ben-manes.caffeine:caffeine")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+	// UUIDv7 생성
+	implementation("com.github.f4b6a3:uuid-creator:6.0.0")
 }
 
 kotlin {
