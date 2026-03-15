@@ -5,7 +5,7 @@ import com.example.commerce.domain.PaymentMethod
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 
-// Mock Implementation for testing
+// 테스트를 위한 목(Mock) 구현체
 @Service
 class MockPaymentGateway : PaymentGateway {
     override fun approve(amount: BigDecimal, method: PaymentMethod): String {

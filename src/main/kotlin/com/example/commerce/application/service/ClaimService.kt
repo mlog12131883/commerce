@@ -24,23 +24,22 @@ class ClaimService(
     override fun requestClaim(orderId: String, cancelItems: List<CancelItem>, reason: String) {
         val payments = paymentRepository.findByOrderId(orderId)
             .filter { it.status == PaymentStatus.APPROVED }
-            .sortedBy { if (it.paymentMethod == PaymentMethod.POINT) 0 else 1 } // Priority: Point -> Main
+            .sortedBy { if (it.paymentMethod == PaymentMethod.POINT) 0 else 1 } // 우선순위: 포인트 -> 주결제수단
 
         if (payments.isEmpty()) throw IllegalStateException("No active payments found for order $orderId")
 
-        // 1. Calculate Refund Amount (Server Side)
-        // Simplified: In a real app, logic would involve OrderItems, Delivery Fee, etc.
-        // For this demo, we assume cancelItems maps to a specific amount.
-        // Let's assume input implies an amount for simplicity or fetch order items.
-        // Implementation Requirement: `originalAmount` - (`itemCancelAmount` + ...)
-        // I will implement a rudimentary calculation.
+        // 1. 환불 금액 계산 (서버 측)
+        // 실제 앱에서는 주문 항목, 배송비 등의 로직이 포함됩니다.
+        // 이 데모에서는 취소 항목이 특정 금액에 매핑된다고 가정합니다.
+        // 구현 요구사항: `originalAmount` - (`itemCancelAmount` + ...)
+        // 여기서는 간단한 계산 로직을 구현합니다.
         val totalRefundNeeded = calculateRefundAmount(cancelItems)
 
         println("Claim: Refund needed: $totalRefundNeeded")
 
         var remainingRefund = totalRefundNeeded
 
-        // 2. Waterfall Allocation
+        // 2. 폭포수형(Waterfall) 할당
         for (payment in payments) {
             if (remainingRefund <= BigDecimal.ZERO) break
 
@@ -59,21 +58,21 @@ class ClaimService(
     }
 
     private fun calculateRefundAmount(cancelItems: List<CancelItem>): BigDecimal {
-        // Logic: specific implementation based on requirements
+        // 로직: 요구사항에 따른 특정 구현
         // "repaymentAmount = originalAmount - (itemCancelAmount ...)"
-        // Here we just return a stub sum for the mock request.
-        // real logic needs Order repository fetch.
-        // For demonstration, let's assume each item is 10000.
+        // 여기서는 목(Mock) 요청을 위해 단순히 합계를 반환합니다.
+        // 실제 로직은 주문 레포지토리 조회가 필요합니다.
+        // 시연을 위해 각 항목이 10,000원이라고 가정합니다.
         return BigDecimal(cancelItems.sumOf { it.quantity * 10000 })
     }
 
     private fun processRefund(payment: Payment, refundAmount: BigDecimal, reason: String) {
-        // Strategy Pattern Decision
+        // 전략 패턴 결정
         if (payment.isPartialCancelable) {
-            // Case 1: Partial Cancelable
+            // 케이스 1: 부분 취소 가능
             paymentGateway.partialCancel(payment.paymentId.toString(), refundAmount, reason)
             
-            // Update Entity
+            // 엔티티 업데이트
             val previousStatus = payment.status
             payment.repaymentAmount = payment.repaymentAmount.subtract(refundAmount)
             payment.totalRefundAmount = payment.totalRefundAmount.add(refundAmount)
@@ -87,12 +86,12 @@ class ClaimService(
             saveHistory(payment, previousStatus, reason)
 
         } else {
-            // Case 2: Not Partial Cancelable (Re-auth)
+            // 케이스 2: 부분 취소 불가 (재승인 전략)
             val oldAmount = payment.repaymentAmount
             val newAmount = oldAmount.subtract(refundAmount)
 
             if (newAmount.compareTo(BigDecimal.ZERO) == 0) {
-                // Case 3: Full Cancel
+                // 케이스 3: 전체 취소
                 paymentGateway.cancel(payment.paymentId.toString(), oldAmount, reason)
                 
                 val previousStatus = payment.status
@@ -102,29 +101,29 @@ class ClaimService(
                 
                 saveHistory(payment, previousStatus, reason)
             } else {
-                 // Void & Re-auth Strategy
+                 // 승인 취소 후 재승인 전략
                  println("Re-auth Strategy: Voiding ${payment.originalAmount} and re-approving $newAmount")
                  
-                 // 1. Approve New
-                 // In real world, this returns a new PG Transaction ID
+                 // 1. 신규 승인
+                 // 실제 환경에서는 새로운 PG 트랜잭션 ID를 반환받습니다.
                  paymentGateway.approve(newAmount, payment.paymentMethod)
                  
-                 // 2. Cancel Old (Void)
+                 // 2. 기존 결제 취소 (Void)
                  paymentGateway.cancel(payment.paymentId.toString(), payment.originalAmount, "Re-auth Void")
                  
-                 // 3. Mark Old Payment as CANCELED
+                 // 3. 기존 결제 상태를 CANCELED로 표시
                  val previousStatus = payment.status
                  payment.status = PaymentStatus.CANCELED
-                 payment.repaymentAmount = BigDecimal.ZERO // Fully cancelled
-                 payment.totalRefundAmount = payment.totalRefundAmount.add(payment.originalAmount) // Full refund recorded on old
+                 payment.repaymentAmount = BigDecimal.ZERO // 전체 취소 처리됨
+                 payment.totalRefundAmount = payment.totalRefundAmount.add(payment.originalAmount) // 기존 결제에 전체 환불 기록
                  saveHistory(payment, previousStatus, "Voided for Re-auth")
 
-                 // 4. Create NEW Payment for the remaining amount
+                 // 4. 잔액에 대해 새로운 결제(Payment) 생성
                  val newPayment = Payment(
                      orderId = payment.orderId,
                      originalAmount = newAmount,
                      repaymentAmount = newAmount,
-                     totalRefundAmount = BigDecimal.ZERO, // Fresh start
+                     totalRefundAmount = BigDecimal.ZERO, // 새롭게 시작
                      paymentMethod = payment.paymentMethod,
                      transactionType = TransactionType.PAYMENT,
                      isSettled = true,
@@ -132,15 +131,15 @@ class ClaimService(
                  )
                  paymentRepository.save(newPayment)
                  paymentHistoryRepository.save(PaymentHistory(
-                     paymentId = newPayment.paymentId ?: 0L, // ID might be null before save if not flushed, but save returns instance with ID
-                     previousStatus = PaymentStatus.APPROVED, // Initial state
+                     paymentId = newPayment.paymentId ?: 0L, // 저장 전에는 ID가 null일 수 있으나 save가 인스턴스를 반환함
+                     previousStatus = PaymentStatus.APPROVED, // 초기 상태
                      newStatus = PaymentStatus.APPROVED,
                      reason = "Re-approval for Order ${payment.orderId}"
                  ))
             }
         }
         
-        // Save Refund Log
+        // 환불 로그 저장
         refundRepository.save(Refund(
             paymentId = payment.paymentId!!,
             orderId = payment.orderId,
