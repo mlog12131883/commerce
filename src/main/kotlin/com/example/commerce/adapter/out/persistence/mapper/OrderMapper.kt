@@ -11,6 +11,7 @@ class OrderMapper {
     fun toDomain(entity: OrderJpaEntity): Order {
         return Order(
             orderId = entity.orderId,
+            userId = entity.userId,
             items = entity.items.map {
                 OrderItem(
                     orderItemId = it.seq,
@@ -28,6 +29,7 @@ class OrderMapper {
     fun toEntity(domain: Order): OrderJpaEntity {
         val entity = OrderJpaEntity(
             orderId = domain.orderId,
+            userId = domain.userId,
             totalAmount = domain.totalAmount,
             deliveryFee = domain.deliveryFee,
             createdAt = domain.createdAt

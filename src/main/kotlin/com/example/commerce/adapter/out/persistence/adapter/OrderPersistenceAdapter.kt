@@ -21,4 +21,8 @@ class OrderPersistenceAdapter(
     override fun findById(orderId: String): Optional<Order> {
         return orderRepository.findById(orderId).map { orderMapper.toDomain(it) }
     }
+
+    override fun findByUserId(userId: String): List<Order> {
+        return orderRepository.findByUserId(userId).map { orderMapper.toDomain(it) }
+    }
 }

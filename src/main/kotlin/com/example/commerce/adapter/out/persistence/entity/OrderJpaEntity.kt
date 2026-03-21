@@ -11,6 +11,9 @@ data class OrderJpaEntity(
     @Column(nullable = false)
     val orderId: String,
 
+    @Column(nullable = false)
+    val userId: String,
+
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     val items: MutableList<OrderItemJpaEntity> = mutableListOf(),
 

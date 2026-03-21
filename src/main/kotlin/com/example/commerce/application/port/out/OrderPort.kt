@@ -6,4 +6,5 @@ import java.util.Optional
 interface OrderPort {
     fun save(order: Order): Order
     fun findById(orderId: String): Optional<Order>
+    fun findByUserId(userId: String): List<Order>
 }

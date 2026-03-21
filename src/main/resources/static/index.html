@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleek Commerce | Premium Shopping Experience</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #090a0f;
+            --surface: #12141c;
+            --card: #1a1d29;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.4);
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #10b981;
+            --error: #ef4444;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --font: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font);
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+        }
+
+        /* --- Components --- */
+        .glass {
+            background: rgba(26, 29, 41, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        nav button {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            margin-left: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        nav button:hover, nav button.active {
+            color: var(--text);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius-md);
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+            box-shadow: 0 10px 30px -10px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px -10px var(--accent-glow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- Views --- */
+        .view {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Product Grid & Cards --- */
+        .product-hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .product-image {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8rem;
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5);
+        }
+
+        .product-info h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 2rem;
+        }
+
+        .desc {
+            color: var(--text-dim);
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* --- List Styles --- */
+        .list-card {
+            background: var(--card);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-footer, .checkout-footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: right;
+        }
+
+        .total-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- Form Elements --- */
+        .p-method-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .p-method-btn {
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .p-method-btn.active {
+            border-color: var(--accent);
+            color: var(--text);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* --- Status Screens --- */
+        .status-screen {
+            text-align: center;
+            padding: 6rem 0;
+        }
+
+        .status-icon {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* --- Utils --- */
+        .badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+            display: none;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <header class="glass">
+        <div class="logo" onclick="showView('productView')">SleekCommerce</div>
+        <nav>
+            <button onclick="showView('productView')" class="nav-btn" data-view="productView">Store</button>
+            <button onclick="loadCart()" class="nav-btn" data-view="cartView">Cart (<span id="cartCount">0</span>)</button>
+            <button onclick="loadHistory()" class="nav-btn" data-view="historyView">My Orders</button>
+        </nav>
+    </header>
+
+    <div class="container">
+        
+        <!-- View: Product Detail -->
+        <div id="productView" class="view active">
+            <div class="product-hero">
+                <div class="product-image">⌚</div>
+                <div class="product-info">
+                    <span class="badge badge-success">Limited Edition</span>
+                    <h1 id="pName">Apex Chronograph</h1>
+                    <div class="price" id="pPrice">₩159,000</div>
+                    <p class="desc" id="pDesc">Precision engineered stainless steel casing with a sapphire glass dome. Designed for those who value every second.</p>
+                    <button class="btn btn-primary" onclick="addToCart('PROD-APEX-001')">
+                        <span>Add to Cart</span>
+                        <div class="loader" id="addLoader"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Cart -->
+        <div id="cartView" class="view">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem;">Your Cart</h2>
+            <div id="cartItemsList">
+                <!-- Cart items injections -->
+            </div>
+            <div id="emptyCart" style="display: none; text-align: center; color: var(--text-dim);">
+                Your cart is empty. Start shopping!
+            </div>
+            <div class="cart-footer" id="cartFooter">
+                <div class="total-price" id="cartTotalAmt">₩0</div>
+                <button class="btn btn-primary btn-lg" onclick="goToCheckout()">Proceed to Checkout</button>
+            </div>
+        </div>
+
+        <!-- View: Checkout -->
+        <div id="checkoutView" class="view">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Secure Checkout</h2>
+            <p style="color: var(--text-dim); margin-bottom: 3rem;">Complete your purchase by choosing a payment method.</p>
+            
+            <div id="orderSheetItems"></div>
+
+            <h3 style="margin-top: 3rem;">Select Payment Method</h3>
+            <div class="p-method-group">
+                <button class="p-method-btn active" onclick="selectPayment('CREDIT_CARD', this)">Credit Card</button>
+                <button class="p-method-btn" onclick="selectPayment('KAKAO_PAY', this)">Kakao Pay</button>
+                <button class="p-method-btn" onclick="selectPayment('NAVER_PAY', this)">Naver Pay</button>
+                <button class="p-method-btn" onclick="selectPayment('POINT', this)">Points</button>
+            </div>
+
+            <div class="checkout-footer">
+                <div style="font-size: 1.1rem; color: var(--text-dim);">Final Amount (incl. delivery)</div>
+                <div class="total-price" id="finalPayAmt">₩0</div>
+                <button class="btn btn-primary" onclick="processPayment()">
+                    <span>Pay Now</span>
+                    <div class="loader" id="payLoader"></div>
+                </button>
+            </div>
+        </div>
+
+        <!-- View: Order Success -->
+        <div id="successView" class="view">
+            <div class="status-screen">
+                <div class="status-icon">✨</div>
+                <h1>Payment Successful!</h1>
+                <p style="color: var(--text-dim); margin-top: 1rem; margin-bottom: 3rem;">Your order <strong id="succOrderId" style="color: var(--text);">#ORD-123</strong> has been placed.</p>
+                <button class="btn btn-primary" onclick="loadHistory()">View Order History</button>
+            </div>
+        </div>
+
+        <!-- View: History -->
+        <div id="historyView" class="view">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem;">My Order History</h2>
+            <div id="historyList">
+                <!-- Order history injections -->
+            </div>
+        </div>
+
+        <!-- View: Claim -->
+        <div id="claimView" class="view">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Request Return</h2>
+            <p style="color: var(--text-dim); margin-bottom: 3rem;">Select items to return and provide a reason.</p>
+            <div id="claimOrderInfo" style="margin-bottom: 2rem; background: var(--card); padding: 1rem; border-radius: 12px;"></div>
+            <div id="claimItems"></div>
+            
+            <div style="margin-top: 2rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim);">Reason for Return</label>
+                <textarea id="claimReason" style="width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; color: #fff; height: 120px; font-family: inherit; font-size: 1rem; outline: none;" placeholder="Tell us why..."></textarea>
+            </div>
+
+            <div style="margin-top: 3rem; text-align: right;">
+                <button class="btn btn-primary btn-outline" onclick="showView('historyView')" style="margin-right: 1rem;">Cancel</button>
+                <button class="btn btn-primary btn-danger" style="background: var(--error); box-shadow: 0 10px 30px -10px rgba(239, 68, 68, 0.4);" onclick="submitClaim()">
+                    <span>Confirm Claim</span>
+                    <div class="loader" id="claimLoader"></div>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const API = '/api';
+        const USER_ID = 'user-prime-07'; // Mock User ID
+
+        let currentView = 'productView';
+        let currentCart = null;
+        let selectedMethod = 'CREDIT_CARD';
+        let claimingOrderId = null;
+        let claimingItems = [];
+
+        // --- View Controller ---
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.view === viewId);
+            });
+            currentView = viewId;
+            window.scrollTo(0,0);
+        }
+
+        // --- API Helpers ---
+        async function fetchAPI(path, config = {}) {
+            try {
+                const res = await fetch(API + path, {
+                    headers: { 'Content-Type': 'application/json' },
+                    ...config
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.message || 'API Error');
+                }
+                return await res.json();
+            } catch (e) {
+                alert('Error: ' + e.message);
+                throw e;
+            }
+        }
+
+        // --- Cart Logic ---
+        async function addToCart(productId) {
+            const btn = document.getElementById('addLoader');
+            btn.style.display = 'block';
+            try {
+                const cart = await fetchAPI(`/cart/${USER_ID}/items`, {
+                    method: 'POST',
+                    body: JSON.stringify({ productId, quantity: 1 })
+                });
+                updateCartBadge(cart.items.length);
+                alert("Added to cart! ✨");
+            } finally {
+                btn.style.display = 'none';
+            }
+        }
+
+        async function loadCart() {
+            const cart = await fetchAPI(`/cart/${USER_ID}`);
+            currentCart = cart;
+            renderCart(cart);
+            showView('cartView');
+        }
+
+        function renderCart(cart) {
+            const list = document.getElementById('cartItemsList');
+            const footer = document.getElementById('cartFooter');
+            const empty = document.getElementById('emptyCart');
+            list.innerHTML = '';
+            
+            if (cart.items.length === 0) {
+                empty.style.display = 'block';
+                footer.style.display = 'none';
+            } else {
+                empty.style.display = 'none';
+                footer.style.display = 'block';
+                cart.items.forEach(item => {
+                    list.innerHTML += `
+                        <div class="list-card glass">
+                            <div>
+                                <div style="font-weight: 700; font-size: 1.2rem;">${item.productName}</div>
+                                <div style="color: var(--text-dim);">Qty: ${item.quantity} × ₩${item.price.toLocaleString()}</div>
+                            </div>
+                            <div style="font-weight: 800; font-size: 1.4rem;">₩${(item.price * item.quantity).toLocaleString()}</div>
+                        </div>
+                    `;
+                });
+                document.getElementById('cartTotalAmt').innerText = '₩' + cart.totalAmount.toLocaleString();
+            }
+            updateCartBadge(cart.items.length);
+        }
+
+        function updateCartBadge(count) {
+            document.getElementById('cartCount').innerText = count;
+        }
+
+        // --- Checkout Logic ---
+        async function goToCheckout() {
+            const sheet = await fetchAPI(`/checkout/${USER_ID}/sheet`);
+            document.getElementById('orderSheetItems').innerHTML = sheet.items.map(it => `
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 0.8rem 0;">
+                    <span style="color: var(--text-dim);">${it.productName} × ${it.quantity}</span>
+                    <span style="font-weight: 600;">₩${(it.price * it.quantity).toLocaleString()}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('orderSheetItems').innerHTML += `
+                <div style="display: flex; justify-content: space-between; padding-top: 1rem; color: var(--text-dim);">
+                    <span>Products Total</span><span>₩${sheet.totalAmount.toLocaleString()}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding-bottom: 1rem;">
+                    <span>Delivery Fee</span><span>₩${sheet.deliveryFee.toLocaleString()}</span>
+                </div>
+            `;
+            
+            document.getElementById('finalPayAmt').innerText = '₩' + sheet.finalAmount.toLocaleString();
+            showView('checkoutView');
+        }
+
+        function selectPayment(m, btn) {
+            selectedMethod = m;
+            document.querySelectorAll('.p-method-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        async function processPayment() {
+            const loader = document.getElementById('payLoader');
+            loader.style.display = 'block';
+            try {
+                // Determine payment requests (Simplified: one method for total)
+                const totalText = document.getElementById('finalPayAmt').innerText.replace('₩', '').replace(/,/g, '');
+                const finalAmount = parseFloat(totalText);
+
+                const res = await fetchAPI(`/checkout/${USER_ID}/pay`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        payments: [{ method: selectedMethod, amount: finalAmount }]
+                    })
+                });
+
+                document.getElementById('succOrderId').innerText = '#' + res.orderId;
+                updateCartBadge(0);
+                showView('successView');
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        // --- History & Claim ---
+        async function loadHistory() {
+            const orders = await fetchAPI(`/orders/user/${USER_ID}`);
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            
+            if (orders.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-dim);">No orders yet.</p>';
+            } else {
+                orders.forEach(ord => {
+                    list.innerHTML += `
+                        <div class="list-card glass" style="flex-direction: column; align-items: stretch; gap: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: 800; color: var(--text-dim); font-size: 0.85rem;">ORDER ID: ${ord.orderId}</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-dim);">${ord.createdAt}</div>
+                                </div>
+                                <button class="btn btn-outline btn-sm" onclick="prepareClaim('${ord.orderId}')">Claim Return</button>
+                            </div>
+                            <div style="border-top: 1px solid var(--border); padding-top: 1rem;">
+                                ${ord.items.map(it => `<div style="font-size: 0.95rem;">${it.productId} × ${it.quantity}</div>`).join('')}
+                            </div>
+                            <div style="text-align: right; font-weight: 800; font-size: 1.2rem; color: var(--accent);">
+                                ₩${ord.totalAmount.toLocaleString()}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            showView('historyView');
+        }
+
+        async function prepareClaim(orderId) {
+            claimingOrderId = orderId;
+            const orders = await fetchAPI(`/orders/user/${USER_ID}`);
+            const order = orders.find(o => o.orderId === orderId);
+            
+            document.getElementById('claimOrderInfo').innerHTML = `Order #${orderId} - Total ₩${order.totalAmount.toLocaleString()}`;
+            
+            claimingItems = order.items.map(it => ({ ...it, claimQty: 1 })); // Default to 1
+            const list = document.getElementById('claimItems');
+            list.innerHTML = order.items.map((it, idx) => `
+                <div class="list-card glass">
+                    <div>
+                        <div style="font-weight: 700;">${it.productId}</div>
+                        <div style="color: var(--text-dim);">Price: ₩${it.price.toLocaleString()}</div>
+                    </div>
+                    <div>
+                        <input type="number" value="1" min="1" max="${it.quantity}" 
+                               style="width: 50px; background: transparent; border: 1px solid var(--border); color: #fff; padding: 0.3rem; border-radius: 6px;"
+                               onchange="updateClaimQty(${idx}, this.value)">
+                        <span style="color: var(--text-dim); font-size: 0.8rem;"> / ${it.quantity}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            showView('claimView');
+        }
+
+        function updateClaimQty(idx, val) {
+            claimingItems[idx].claimQty = parseInt(val);
+        }
+
+        async function submitClaim() {
+            const loader = document.getElementById('claimLoader');
+            const reason = document.getElementById('claimReason').value;
+            if(!reason) return alert('Please enter a reason');
+
+            loader.style.display = 'block';
+            try {
+                await fetchAPI(`/claims/${claimingOrderId}/refund`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        cancelItems: claimingItems.map(it => ({ productId: it.productId, quantity: it.claimQty })),
+                        reason: reason
+                    })
+                });
+                alert('Claim submitted successfully. We will review it shortly.');
+                loadHistory();
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        // --- Init ---
+        // Fetch product info to show realistic data
+        fetchAPI('/products/PROD-APEX-001').then(p => {
+            document.getElementById('pName').innerText = p.name;
+            document.getElementById('pPrice').innerText = '₩' + p.price.toLocaleString();
+            document.getElementById('pDesc').innerText = p.description;
+        }).catch(e => console.log('Products API might be empty initially'));
+
+    </script>
+</body>
+</html>

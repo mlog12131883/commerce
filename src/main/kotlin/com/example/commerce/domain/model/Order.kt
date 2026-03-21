@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 
 data class Order(
     val orderId: String,
+    val userId: String,
     val items: MutableList<OrderItem> = mutableListOf(),
     val totalAmount: BigDecimal,
     var deliveryFee: BigDecimal = BigDecimal.ZERO,

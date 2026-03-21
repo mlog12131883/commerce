@@ -16,13 +16,14 @@ class OrderService(
     private val orderRepository: OrderPort
 ) : OrderUseCase {
     @Transactional
-    override fun placeOrder(command: OrderCommand): String {
+    override fun placeOrder(userId: String, command: OrderCommand): String {
         val orderId = "ORD-${UUID.randomUUID()}"
         val totalAmount = command.items.sumOf { it.price.multiply(BigDecimal(it.quantity)) }
             .add(command.deliveryFee)
             
         val order = Order(
             orderId = orderId,
+            userId = userId,
             totalAmount = totalAmount,
             deliveryFee = command.deliveryFee,
             createdAt = LocalDateTime.now()
@@ -40,5 +41,9 @@ class OrderService(
         
         orderRepository.save(order)
         return orderId
+    }
+
+    override fun getOrdersByUser(userId: String): List<Order> {
+        return orderRepository.findByUserId(userId)
     }
 }
