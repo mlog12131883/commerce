@@ -17,7 +17,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 6379
+      port: 6380
       # password: your_redis_password  # 인증이 필요한 경우 주석 해제
 
 logging:

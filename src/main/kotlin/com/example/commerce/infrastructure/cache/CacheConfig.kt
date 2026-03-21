@@ -15,7 +15,7 @@ import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.data.redis.listener.PatternTopic
 import org.springframework.data.redis.listener.RedisMessageListenerContainer
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
+import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
 import org.springframework.data.redis.serializer.RedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer
@@ -80,7 +80,7 @@ class CacheConfig(
         // 직렬화: Key=String, Value=JSON (타입 정보 포함)
         // GenericJackson2JsonRedisSerializer는 내부적으로 Jackson 2.x ObjectMapper를
         // 사용하므로, tools.jackson ObjectMapper를 별도로 주입하지 않는다.
-        val jsonSerializer = GenericJackson2JsonRedisSerializer()
+        val jsonSerializer = GenericJacksonJsonRedisSerializer(objectMapper)
         val defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
             .serializeKeysWith(SerializationPair.fromSerializer<String>(StringRedisSerializer()))
             .serializeValuesWith(SerializationPair.fromSerializer<Any>(jsonSerializer))
