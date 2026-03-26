@@ -2,6 +2,7 @@ package com.example.commerce.application.service
 
 import com.example.commerce.application.command.CancelItem
 import com.example.commerce.application.port.`in`.ClaimUseCase
+import com.example.commerce.application.port.out.OrderPort
 import com.example.commerce.application.port.out.PaymentGateway
 import com.example.commerce.application.port.out.PaymentHistoryPort
 import com.example.commerce.application.port.out.PaymentPort
@@ -17,7 +18,8 @@ class ClaimService(
     private val paymentRepository: PaymentPort,
     private val paymentHistoryRepository: PaymentHistoryPort,
     private val refundRepository: RefundPort,
-    private val paymentGateway: PaymentGateway
+    private val paymentGateway: PaymentGateway,
+    private val orderRepository: OrderPort
 ) : ClaimUseCase {
 
     @Transactional
@@ -32,8 +34,7 @@ class ClaimService(
         // 실제 앱에서는 주문 항목, 배송비 등의 로직이 포함됩니다.
         // 이 데모에서는 취소 항목이 특정 금액에 매핑된다고 가정합니다.
         // 구현 요구사항: `originalAmount` - (`itemCancelAmount` + ...)
-        // 여기서는 간단한 계산 로직을 구현합니다.
-        val totalRefundNeeded = calculateRefundAmount(cancelItems)
+        val totalRefundNeeded = calculateRefundAmount(orderId, cancelItems)
 
         println("Claim: Refund needed: $totalRefundNeeded")
 
@@ -57,13 +58,20 @@ class ClaimService(
         }
     }
 
-    private fun calculateRefundAmount(cancelItems: List<CancelItem>): BigDecimal {
-        // 로직: 요구사항에 따른 특정 구현
-        // "repaymentAmount = originalAmount - (itemCancelAmount ...)"
-        // 여기서는 목(Mock) 요청을 위해 단순히 합계를 반환합니다.
-        // 실제 로직은 주문 레포지토리 조회가 필요합니다.
-        // 시연을 위해 각 항목이 10,000원이라고 가정합니다.
-        return BigDecimal(cancelItems.sumOf { it.quantity * 10000 })
+    private fun calculateRefundAmount(orderId: String, cancelItems: List<CancelItem>): BigDecimal {
+        val order = orderRepository.findById(orderId)
+            .orElseThrow { IllegalArgumentException("Order not found: $orderId") }
+            
+        var sum = BigDecimal.ZERO
+        for (cancelItem in cancelItems) {
+            val orderItem = order.items.find { it.productId == cancelItem.productId }
+            if (orderItem != null) {
+                sum = sum.add(orderItem.productPrice.multiply(BigDecimal(cancelItem.quantity)))
+            } else {
+                throw IllegalArgumentException("Product ${cancelItem.productId} not found in order")
+            }
+        }
+        return sum
     }
 
     private fun processRefund(payment: Payment, refundAmount: BigDecimal, reason: String) {
