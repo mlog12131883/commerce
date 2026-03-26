@@ -115,6 +115,22 @@ export default function App() {
     }
   };
 
+  const buyNow = async () => {
+    const qty = parseInt(document.getElementById('pQty')?.value || 1);
+    setLoading({ ...loading, buyingInstantly: true });
+    try {
+      const updatedCart = await fetchAPI(`/cart/${USER_ID}/items`, {
+        method: 'POST',
+        body: JSON.stringify({ productId: product.productId, quantity: qty })
+      });
+      setCart(updatedCart);
+      // After adding to cart, immediately go to checkout
+      await goToCheckout();
+    } finally {
+      setLoading({ ...loading, buyingInstantly: false });
+    }
+  };
+
   const loadCart = async () => {
     setLoading({ ...loading, main: true });
     try {
@@ -254,10 +270,16 @@ export default function App() {
                   />
                 </div>
 
-                <button className="btn btn-primary" onClick={addToCart}>
-                  <span>Add to Cart</span>
-                  {loading.adding && <Loader />}
-                </button>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button className="btn btn-outline" onClick={addToCart} disabled={loading.adding}>
+                    <span>Add to Cart</span>
+                    {loading.adding && <Loader />}
+                  </button>
+                  <button className="btn btn-primary" onClick={buyNow} disabled={loading.buyingInstantly}>
+                    <span>Buy Now</span>
+                    {loading.buyingInstantly && <Loader />}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
