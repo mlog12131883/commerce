@@ -283,6 +283,13 @@
                     <h1 id="pName">Apex Chronograph</h1>
                     <div class="price" id="pPrice">₩159,000</div>
                     <p class="desc" id="pDesc">Precision engineered stainless steel casing with a sapphire glass dome. Designed for those who value every second.</p>
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+                        <label style="color: var(--text-dim); font-weight: 600;">Quantity:</label>
+                        <input type="number" id="pQty" value="1" min="1" max="10" 
+                               style="width: 80px; background: var(--surface); border: 2px solid var(--border); color: #fff; padding: 0.8rem; border-radius: var(--radius-md); font-weight: 700; outline: none; text-align: center;">
+                    </div>
+
                     <button class="btn btn-primary" onclick="addToCart('PROD-APEX-001')">
                         <span>Add to Cart</span>
                         <div class="loader" id="addLoader"></div>
@@ -309,22 +316,32 @@
         <!-- View: Checkout -->
         <div id="checkoutView" class="view">
             <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Secure Checkout</h2>
-            <p style="color: var(--text-dim); margin-bottom: 3rem;">Complete your purchase by choosing a payment method.</p>
+            <p style="color: var(--text-dim); margin-bottom: 3rem;">Split your payment across multiple methods if you wish.</p>
             
             <div id="orderSheetItems"></div>
 
-            <h3 style="margin-top: 3rem;">Select Payment Method</h3>
-            <div class="p-method-group">
-                <button class="p-method-btn active" onclick="selectPayment('CREDIT_CARD', this)">Credit Card</button>
-                <button class="p-method-btn" onclick="selectPayment('KAKAO_PAY', this)">Kakao Pay</button>
-                <button class="p-method-btn" onclick="selectPayment('NAVER_PAY', this)">Naver Pay</button>
-                <button class="p-method-btn" onclick="selectPayment('POINT', this)">Points</button>
+            <div class="glass" style="margin-top: 3rem; padding: 2rem; border-radius: var(--radius-lg);">
+                <h3 style="margin-bottom: 1.5rem;">Multi-Payment Selection</h3>
+                <div id="multiPaymentList">
+                    <!-- Dynamic payment rows -->
+                </div>
+                
+                <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-weight: 600; color: var(--text-dim);">Total to Pay:</div>
+                    <div style="font-size: 1.2rem; font-weight: 700;" id="splitTotalTarget">₩0</div>
+                </div>
+                <div style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-weight: 600; color: var(--text-dim);">Allocated Amount:</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent);" id="splitAllocatedAmt">₩0</div>
+                </div>
+                <div style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-weight: 600; color: var(--text-dim);">Remaining:</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: var(--error);" id="splitRemainingAmt">₩0</div>
+                </div>
             </div>
 
             <div class="checkout-footer">
-                <div style="font-size: 1.1rem; color: var(--text-dim);">Final Amount (incl. delivery)</div>
-                <div class="total-price" id="finalPayAmt">₩0</div>
-                <button class="btn btn-primary" onclick="processPayment()">
+                <button class="btn btn-primary" id="payBtn" onclick="processPayment()" disabled style="opacity: 0.5; cursor: not-allowed; width: 100%; justify-content: center;">
                     <span>Pay Now</span>
                     <div class="loader" id="payLoader"></div>
                 </button>
@@ -337,6 +354,9 @@
                 <div class="status-icon">✨</div>
                 <h1>Payment Successful!</h1>
                 <p style="color: var(--text-dim); margin-top: 1rem; margin-bottom: 3rem;">Your order <strong id="succOrderId" style="color: var(--text);">#ORD-123</strong> has been placed.</p>
+                <div id="successPaymentDetails" style="margin-bottom: 3rem; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto; background: var(--card); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border);">
+                    <!-- Payment breakdown -->
+                </div>
                 <button class="btn btn-primary" onclick="loadHistory()">View Order History</button>
             </div>
         </div>
@@ -382,6 +402,17 @@
         let claimingOrderId = null;
         let claimingItems = [];
 
+        // --- NEW: Multi-Payment State ---
+        let currentOrderTotal = 0;
+        const PAYMENT_METHODS = [
+            { id: 'CREDIT_CARD', name: 'Credit Card', icon: '💳', partial: true },
+            { id: 'DEBIT_CARD', name: 'Debit Card', icon: '🏦', partial: false },
+            { id: 'KAKAO_PAY', name: 'Kakao Pay', icon: '🟡', partial: true },
+            { id: 'NAVER_PAY', name: 'Naver Pay', icon: '🟢', partial: true },
+            { id: 'POINT', name: 'Member Points', icon: '⭐️', balance: 50000, partial: true } // Mock points
+        ];
+        let paymentAllocations = {};
+
         // --- View Controller ---
         function showView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -414,14 +445,15 @@
         // --- Cart Logic ---
         async function addToCart(productId) {
             const btn = document.getElementById('addLoader');
+            const qty = parseInt(document.getElementById('pQty').value) || 1;
             btn.style.display = 'block';
             try {
                 const cart = await fetchAPI(`/cart/${USER_ID}/items`, {
                     method: 'POST',
-                    body: JSON.stringify({ productId, quantity: 1 })
+                    body: JSON.stringify({ productId, quantity: qty })
                 });
                 updateCartBadge(cart.items.length);
-                alert("Added to cart! ✨");
+                alert(`${qty} items added to cart! ✨`);
             } finally {
                 btn.style.display = 'none';
             }
@@ -466,9 +498,11 @@
             document.getElementById('cartCount').innerText = count;
         }
 
-        // --- Checkout Logic ---
+        // --- Checkout Logic (Modified for Multi-Payment) ---
         async function goToCheckout() {
             const sheet = await fetchAPI(`/checkout/${USER_ID}/sheet`);
+            currentOrderTotal = sheet.finalAmount;
+            
             document.getElementById('orderSheetItems').innerHTML = sheet.items.map(it => `
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 0.8rem 0;">
                     <span style="color: var(--text-dim);">${it.productName} × ${it.quantity}</span>
@@ -485,32 +519,138 @@
                 </div>
             `;
             
-            document.getElementById('finalPayAmt').innerText = '₩' + sheet.finalAmount.toLocaleString();
+            document.getElementById('splitTotalTarget').innerText = '₩' + sheet.finalAmount.toLocaleString();
+            
+            // Initialize payment allocations
+            paymentAllocations = {};
+            PAYMENT_METHODS.forEach(m => paymentAllocations[m.id] = 0);
+            paymentAllocations['CREDIT_CARD'] = currentOrderTotal; // Default to card
+
+            renderMultiPaymentUI();
+            updatePaymentStats();
             showView('checkoutView');
         }
 
-        function selectPayment(m, btn) {
-            selectedMethod = m;
-            document.querySelectorAll('.p-method-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        function renderMultiPaymentUI() {
+            const container = document.getElementById('multiPaymentList');
+            container.innerHTML = '';
+            
+            PAYMENT_METHODS.forEach(m => {
+                const isPoint = m.id === 'POINT';
+                container.innerHTML += `
+                    <div style="display: grid; grid-template-columns: 1fr 140px 100px; gap: 1rem; align-items: center; margin-bottom: 1rem; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 12px; border: 1px solid var(--border);">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="font-size: 1.2rem;">${m.icon}</span>
+                                <span style="font-weight: 700;">${m.name}</span>
+                                <span class="badge" style="background: ${m.partial ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 64, 64, 0.1)'}; color: ${m.partial ? 'var(--success)' : 'var(--error)'}; font-size: 0.65rem; padding: 2px 6px;">
+                                    ${m.partial ? 'Partial OK' : 'No Partial'}
+                                </span>
+                            </div>
+                            ${isPoint ? `<div style="font-size: 0.8rem; color: var(--accent);">Bal: ₩${m.balance.toLocaleString()}</div>` : ''}
+                        </div>
+                        <input type="number" 
+                               value="${paymentAllocations[m.id]}" 
+                               class="pay-input"
+                               data-id="${m.id}"
+                               oninput="updateAllocation('${m.id}', this.value)"
+                               style="background: var(--surface); border: 2px solid var(--border); color: #fff; padding: 0.6rem; border-radius: 8px; width: 100%; font-family: inherit; font-weight: 700; text-align: right; outline: none;">
+                        ${isPoint ? `
+                            <button class="btn btn-outline btn-sm" onclick="useAvailablePoints('${m.id}', ${m.balance})" style="padding: 0.4rem; font-size: 0.75rem;">Use Max</button>
+                        ` : `
+                            <button class="btn btn-outline btn-sm" onclick="fillRemaining('${m.id}')" style="padding: 0.4rem; font-size: 0.75rem;">Remaining</button>
+                        `}
+                    </div>
+                `;
+            });
+        }
+
+        function updateAllocation(methodId, val) {
+            paymentAllocations[methodId] = parseFloat(val) || 0;
+            updatePaymentStats();
+        }
+
+        function useAvailablePoints(methodId, balance) {
+            const remaining = currentOrderTotal - getAllocatedExcept(methodId);
+            const amountToUse = Math.min(balance, Math.max(0, remaining));
+            paymentAllocations[methodId] = amountToUse;
+            refreshInputs();
+            updatePaymentStats();
+        }
+
+        function fillRemaining(methodId) {
+            const remaining = currentOrderTotal - getAllocatedExcept(methodId);
+            paymentAllocations[methodId] = Math.max(0, remaining);
+            refreshInputs();
+            updatePaymentStats();
+        }
+
+        function getAllocatedExcept(methodId) {
+            return Object.keys(paymentAllocations)
+                .filter(id => id !== methodId)
+                .reduce((sum, id) => sum + paymentAllocations[id], 0);
+        }
+
+        function refreshInputs() {
+            document.querySelectorAll('.pay-input').forEach(input => {
+                input.value = paymentAllocations[input.dataset.id];
+            });
+        }
+
+        function updatePaymentStats() {
+            const allocated = Object.values(paymentAllocations).reduce((a, b) => a + b, 0);
+            const remaining = currentOrderTotal - allocated;
+            
+            document.getElementById('splitAllocatedAmt').innerText = '₩' + allocated.toLocaleString();
+            document.getElementById('splitRemainingAmt').innerText = '₩' + Math.max(0, remaining).toLocaleString();
+            
+            const payBtn = document.getElementById('payBtn');
+            if (allocated === currentOrderTotal && remaining === 0) {
+                payBtn.disabled = false;
+                payBtn.style.opacity = '1';
+                payBtn.style.cursor = 'pointer';
+                document.getElementById('splitRemainingAmt').style.color = 'var(--success)';
+            } else {
+                payBtn.disabled = true;
+                payBtn.style.opacity = '0.5';
+                payBtn.style.cursor = 'not-allowed';
+                document.getElementById('splitRemainingAmt').style.color = 'var(--error)';
+            }
         }
 
         async function processPayment() {
             const loader = document.getElementById('payLoader');
             loader.style.display = 'block';
             try {
-                // Determine payment requests (Simplified: one method for total)
-                const totalText = document.getElementById('finalPayAmt').innerText.replace('₩', '').replace(/,/g, '');
-                const finalAmount = parseFloat(totalText);
+                const payments = Object.entries(paymentAllocations)
+                    .filter(([_, amount]) => amount > 0)
+                    .map(([method, amount]) => ({ method, amount }));
 
                 const res = await fetchAPI(`/checkout/${USER_ID}/pay`, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        payments: [{ method: selectedMethod, amount: finalAmount }]
-                    })
+                    body: JSON.stringify({ payments })
                 });
 
                 document.getElementById('succOrderId').innerText = '#' + res.orderId;
+                
+                // Show breakdown in success screen
+                const breakdown = document.getElementById('successPaymentDetails');
+                breakdown.innerHTML = '<h4 style="margin-bottom: 1rem;">Payment Breakdown</h4>';
+                payments.forEach(p => {
+                    const mInfo = PAYMENT_METHODS.find(m => m.id === p.method);
+                    breakdown.innerHTML += `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                            <span>${mInfo.icon} ${mInfo.name}</span>
+                            <span style="font-weight: 700;">₩${p.amount.toLocaleString()}</span>
+                        </div>
+                    `;
+                });
+                breakdown.innerHTML += `
+                    <div style="border-top: 1px dashed var(--border); padding-top: 0.5rem; margin-top: 0.5rem; display: flex; justify-content: space-between; font-weight: 800;">
+                        <span>Final Total</span><span>₩${currentOrderTotal.toLocaleString()}</span>
+                    </div>
+                `;
+
                 updateCartBadge(0);
                 showView('successView');
             } finally {

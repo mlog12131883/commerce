@@ -2,6 +2,7 @@ package com.example.commerce.domain
 
 enum class PaymentMethod(val isPartialCancelable: Boolean) {
     CREDIT_CARD(true),
+    DEBIT_CARD(false),
     KAKAO_PAY(true),
     NAVER_PAY(true),
     POINT(true),
