@@ -77,13 +77,14 @@ class CacheConfig(
      */
     @Bean
     fun redisCacheManager(connectionFactory: RedisConnectionFactory): RedisCacheManager {
-        // 직렬화: Key=String, Value=JSON (타입 정보 포함)
-        // GenericJackson2JsonRedisSerializer는 내부적으로 Jackson 2.x ObjectMapper를
-        // 사용하므로, tools.jackson ObjectMapper를 별도로 주입하지 않는다.
-        val jsonSerializer = GenericJacksonJsonRedisSerializer(objectMapper)
+        // [수정] Jackson 3 호환 및 LinkedHashMap 캐스팅 오류를 해결하기 위해
+        // 자바 표준 직렬화(JDK Serialization) 방식을 사용합니다.
+        // Product 클래스에 'Serializable' 인터페이스를 추가하여 데이터 복원을 보장합니다.
+        val serializer = org.springframework.data.redis.serializer.JdkSerializationRedisSerializer()
+
         val defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
             .serializeKeysWith(SerializationPair.fromSerializer<String>(StringRedisSerializer()))
-            .serializeValuesWith(SerializationPair.fromSerializer<Any>(jsonSerializer))
+            .serializeValuesWith(SerializationPair.fromSerializer<Any>(serializer))
             .disableCachingNullValues()
 
         return RedisCacheManager.builder(connectionFactory)
