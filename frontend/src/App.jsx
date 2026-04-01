@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
 import ProductView from './components/ProductView';
 import CartView from './components/CartView';
 import CheckoutView from './components/CheckoutView';
@@ -11,7 +12,9 @@ const API_BASE = '/api';
 const USER_ID = 'user-prime-07';
 
 export default function App() {
-  const [view, setView] = useState('productView');
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const [product, setProduct] = useState(null);
   const [cart, setCart] = useState({ items: [], totalAmount: 0 });
   const [orderSheet, setOrderSheet] = useState(null);
@@ -99,7 +102,7 @@ export default function App() {
     try {
       const data = await fetchAPI(`/cart/${USER_ID}`);
       setCart(data);
-      setView('cartView');
+      navigate('/cart');
     } finally {
       setLoading({ ...loading, main: false });
     }
@@ -116,7 +119,7 @@ export default function App() {
       initialAlloc['CREDIT_CARD'] = sheet.finalAmount;
       setAllocations(initialAlloc);
       
-      setView('checkoutView');
+      navigate('/checkout');
     } finally {
       setLoading({ ...loading, main: false });
     }
@@ -159,7 +162,7 @@ export default function App() {
       setLastOrderId(res.orderId);
       setSuccessPayments(payments);
       updateCartCount();
-      setView('successView');
+      navigate('/success');
     } finally {
       setLoading({ ...loading, paying: false });
     }
@@ -170,7 +173,7 @@ export default function App() {
     try {
       const data = await fetchAPI(`/orders/user/${USER_ID}`);
       setOrderHistory([...data].reverse());
-      setView('historyView');
+      navigate('/history');
     } finally {
       setLoading({ ...loading, main: false });
     }
@@ -181,7 +184,7 @@ export default function App() {
     setClaimItems(order.items.map(it => ({ ...it, claimQty: 1 })));
     setClaimReasonType('변심 (고객 부담, 반품비 3,000원 제외)');
     setClaimReason('');
-    setView('claimView');
+    navigate('/claim');
   };
 
   const submitClaim = async () => {
@@ -218,42 +221,45 @@ export default function App() {
   return (
     <div className="app">
       <header className="glass">
-        <div className="logo" onClick={() => setView('productView')}>SleekCommerce</div>
+        <Link to="/" className="logo">SleekCommerce</Link>
         <nav>
-          <button onClick={() => setView('productView')} className={view === 'productView' ? 'active' : ''}>상점</button>
-          <button onClick={loadCart} className={view === 'cartView' ? 'active' : ''}>
+          <Link to="/" className={location.pathname === '/' ? 'active' : ''}>상점</Link>
+          <button onClick={loadCart} className={location.pathname === '/cart' ? 'active' : ''}>
             장바구니 ({cart.items.length})
           </button>
-          <button onClick={loadHistory} className={view === 'historyView' ? 'active' : ''}>내 주문</button>
+          <button onClick={loadHistory} className={location.pathname === '/history' ? 'active' : ''}>내 주문</button>
         </nav>
       </header>
       <div className="container">
-        {view === 'productView' && (
-          <ProductView product={product} addToCart={addToCart} buyNow={buyNow} loading={loading} />
-        )}
-        {view === 'cartView' && (
-          <CartView cart={cart} goToCheckout={goToCheckout} />
-        )}
-        {view === 'checkoutView' && (
-          <CheckoutView 
-            orderSheet={orderSheet} allocations={allocations} updateAllocation={updateAllocation}
-            fillRemaining={fillRemaining} useMaxPoints={useMaxPoints} currentAllocated={currentAllocated}
-            isPayReady={isPayReady} processPayment={processPayment} loading={loading}
-          />
-        )}
-        {view === 'successView' && (
-          <SuccessView lastOrderId={lastOrderId} successPayments={successPayments} loadHistory={loadHistory} />
-        )}
-        {view === 'historyView' && (
-          <HistoryView orderHistory={orderHistory} claimedOrders={claimedOrders} cancelClaimRequest={cancelClaimRequest} prepareClaim={prepareClaim} />
-        )}
-        {view === 'claimView' && (
-          <ClaimView 
-            claimOrder={claimOrder} claimItems={claimItems} setClaimItems={setClaimItems}
-            claimReasonType={claimReasonType} setClaimReasonType={setClaimReasonType} claimReason={claimReason}
-            setClaimReason={setClaimReason} submitClaim={submitClaim} setView={setView} loading={loading}
-          />
-        )}
+        <Routes>
+          <Route path="/" element={<ProductView product={product} addToCart={addToCart} buyNow={buyNow} loading={loading} />} />
+          <Route path="/cart" element={<CartView cart={cart} goToCheckout={goToCheckout} />} />
+          <Route path="/checkout" element={
+            orderSheet ? (
+              <CheckoutView 
+                orderSheet={orderSheet} allocations={allocations} updateAllocation={updateAllocation}
+                fillRemaining={fillRemaining} useMaxPoints={useMaxPoints} currentAllocated={currentAllocated}
+                isPayReady={isPayReady} processPayment={processPayment} loading={loading}
+              />
+            ) : <Navigate to="/" />
+          } />
+          <Route path="/success" element={
+            lastOrderId ? (
+              <SuccessView lastOrderId={lastOrderId} successPayments={successPayments} loadHistory={loadHistory} />
+            ) : <Navigate to="/" />
+          } />
+          <Route path="/history" element={<HistoryView orderHistory={orderHistory} claimedOrders={claimedOrders} cancelClaimRequest={cancelClaimRequest} prepareClaim={prepareClaim} />} />
+          <Route path="/claim" element={
+            claimOrder ? (
+              <ClaimView 
+                claimOrder={claimOrder} claimItems={claimItems} setClaimItems={setClaimItems}
+                claimReasonType={claimReasonType} setClaimReasonType={setClaimReasonType} claimReason={claimReason}
+                setClaimReason={setClaimReason} submitClaim={submitClaim} setView={() => navigate('/history')} loading={loading}
+              />
+            ) : <Navigate to="/history" />
+          } />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </div>
     </div>
   );
