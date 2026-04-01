@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShoppingBag } from 'lucide-react';
+import { getProductIcon } from './Shared';
 
 export default function CartView({ cart, goToCheckout }) {
   return (
@@ -33,7 +34,7 @@ export default function CartView({ cart, goToCheckout }) {
                   justifyContent: 'center', 
                   fontSize: '2rem' 
                 }}>
-                  {item.productName.toLowerCase().includes('hoodie') ? '👕' : '⌚'}
+                  {getProductIcon(item.productName, item.productId)}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.3rem', letterSpacing: '-0.02em' }}>

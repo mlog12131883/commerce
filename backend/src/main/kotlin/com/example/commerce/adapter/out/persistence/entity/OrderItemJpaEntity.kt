@@ -24,5 +24,11 @@ data class OrderItemJpaEntity(
     val quantity: Int,
 
     @Column(nullable = false)
+    val productName: String = "Product",
+
+    @Column(nullable = true)
+    val selectedOption: String? = null,
+
+    @Column(nullable = false)
     val discountPrice: BigDecimal = BigDecimal.ZERO
 )

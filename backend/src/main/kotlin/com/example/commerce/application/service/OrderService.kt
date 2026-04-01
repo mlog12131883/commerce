@@ -38,8 +38,10 @@ class OrderService(
         val orderItems = command.items.map { 
             OrderItem(
                 productId = it.productId,
+                productName = it.productName,
                 productPrice = it.price,
-                quantity = it.quantity
+                quantity = it.quantity,
+                selectedOption = it.selectedOption
             )
         }.toMutableList()
         

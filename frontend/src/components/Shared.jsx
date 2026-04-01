@@ -18,3 +18,13 @@ export const PAYMENT_METHODS = [
   { id: 'NAVER_PAY', name: 'Naver Pay', icon: <CircleDot size={18} color="#03C75A" />, partial: true },
   { id: 'POINT', name: 'Member Points', icon: <Star size={18} />, balance: 50000, partial: true }
 ];
+
+export const getProductIcon = (name = '', id = '') => {
+  const lowerName = (name || '').toLowerCase();
+  const lowerId = (id || '').toLowerCase();
+  
+  if (lowerName.includes('hoodie') || lowerName.includes('cloth') || lowerId.includes('cloth')) return '👕';
+  if (lowerName.includes('watch') || lowerName.includes('apex') || lowerId.includes('apex')) return '⌚';
+  
+  return '📦'; // Default package icon
+};

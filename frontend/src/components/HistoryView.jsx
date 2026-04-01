@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getProductIcon } from './Shared';
 
 export default function HistoryView({ orderHistory, claimedOrders, cancelClaimRequest, prepareClaim }) {
   const [filter, setFilter] = useState('ALL'); // ALL, COMPLETED, CLAIMED
@@ -111,9 +112,11 @@ export default function HistoryView({ orderHistory, claimedOrders, cancelClaimRe
                     borderTop: i > 0 ? '1px solid var(--border)' : 'none'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                      <div style={{ width: '40px', height: '40px', background: 'var(--surface)', borderRadius: '8px', display: 'flex', alignItems: 'center', justify: 'center', fontSize: '1.2rem' }}>🕒</div>
+                      <div style={{ width: '40px', height: '40px', background: 'var(--surface)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                        {getProductIcon(it.productName, it.productId)}
+                      </div>
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{it.productId}</div>
+                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{it.productName || it.productId}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
                           수량: {it.quantity}개 | 옵션: <span style={{ color: 'var(--text)', fontWeight: 600 }}>{it.selectedOption || '기본'}</span>
                         </div>

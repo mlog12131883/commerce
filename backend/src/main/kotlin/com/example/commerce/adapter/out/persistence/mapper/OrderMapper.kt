@@ -16,8 +16,10 @@ class OrderMapper {
                 OrderItem(
                     orderItemId = it.seq,
                     productId = it.productId,
+                    productName = it.productName,
                     productPrice = it.productPrice,
-                    quantity = it.quantity
+                    quantity = it.quantity,
+                    selectedOption = it.selectedOption
                 )
             }.toMutableList(),
             totalAmount = entity.totalAmount,
@@ -40,8 +42,10 @@ class OrderMapper {
                 seq = it.orderItemId,
                 order = entity,
                 productId = it.productId,
+                productName = it.productName,
                 productPrice = it.productPrice,
-                quantity = it.quantity
+                quantity = it.quantity,
+                selectedOption = it.selectedOption
             )
         })
         

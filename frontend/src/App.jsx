@@ -6,7 +6,7 @@ import CheckoutView from './components/CheckoutView';
 import SuccessView from './components/SuccessView';
 import HistoryView from './components/HistoryView';
 import ClaimView from './components/ClaimView';
-import { PAYMENT_METHODS } from './components/Shared';
+import { PAYMENT_METHODS, getProductIcon } from './components/Shared';
 
 const API_BASE = '/api';
 const USER_ID = 'user-prime-07';
@@ -248,7 +248,7 @@ export default function App() {
                 {products.map(p => (
                   <div key={p.productId} className="list-card glass" style={{ flexDirection: 'column', cursor: 'pointer', transition: '0.3s', padding: '1.5rem' }} onClick={() => { setProduct(p); navigate('/product/' + p.productId); }}>
                     <div style={{ fontSize: '4rem', marginBottom: '1rem', textAlign: 'center', background: 'var(--surface)', borderRadius: 'var(--radius-md)', padding: '2rem' }}>
-                      {p.name.toLowerCase().includes('hoodie') ? '👕' : '⌚'}
+                      {getProductIcon(p.name, p.productId)}
                     </div>
                     <h3 style={{ marginBottom: '0.5rem' }}>{p.name}</h3>
                     <div className="price" style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>₩{p.price.toLocaleString()}</div>

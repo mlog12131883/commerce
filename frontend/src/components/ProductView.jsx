@@ -1,12 +1,12 @@
 import React from 'react';
-import { Badge, Loader } from './Shared';
+import { Badge, Loader, getProductIcon } from './Shared';
 
 export default function ProductView({ product, addToCart, buyNow, loading }) {
   if (!product) return null;
   return (
     <div className="view">
       <div className="product-hero">
-        <div className="product-image">{product.name.toLowerCase().includes('hoodie') ? '👕' : '⌚'}</div>
+        <div className="product-image">{getProductIcon(product.name, product.productId)}</div>
         <div className="product-info">
           <Badge>{product.name.toLowerCase().includes('hoodie') ? 'Essentials' : 'Limited'}</Badge>
           <h1>{product.name}</h1>

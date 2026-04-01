@@ -37,7 +37,13 @@ class CheckoutService(
         // 1. Create Order through OrderUseCase
         val orderCommand = OrderCommand(
             items = cart.items.map { 
-                OrderItemCommand(productId = it.productId, price = it.price, quantity = it.quantity) 
+                OrderItemCommand(
+                    productId = it.productId, 
+                    productName = it.productName,
+                    price = it.price, 
+                    quantity = it.quantity,
+                    selectedOption = it.selectedOption
+                ) 
             },
             deliveryFee = java.math.BigDecimal(3000)
         )
