@@ -188,14 +188,13 @@ export default function App() {
   };
 
   const submitClaim = async () => {
-    if (!claimReason) return alert('상세 사유를 입력해주세요.');
     setLoading({ ...loading, claiming: true });
     try {
       await fetchAPI(`/claims/${claimOrder.orderId}/refund`, {
         method: 'POST',
         body: JSON.stringify({
           cancelItems: claimItems.map(it => ({ productId: it.productId, quantity: it.claimQty })),
-          reason: `[${claimReasonType}] ${claimReason}`
+          reason: claimReason.trim() ? `[${claimReasonType}] ${claimReason}` : `[${claimReasonType}]`
         })
       });
       alert('반품 신청이 완료되었습니다.');
