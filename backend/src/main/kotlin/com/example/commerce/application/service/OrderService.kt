@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @Service
@@ -17,7 +18,12 @@ class OrderService(
 ) : OrderUseCase {
     @Transactional
     override fun placeOrder(userId: String, command: OrderCommand): String {
-        val orderId = "ORD-${UUID.randomUUID()}"
+        // Generate a time-sortable order ID: yyyyMMdd-A-SystemNanoTime
+        val now = LocalDateTime.now()
+        val datePart = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+        val nanoPart = System.nanoTime().toString().takeLast(10) // Unique and always increasing (mostly)
+        val orderId = "$datePart-A-$nanoPart"
+
         val totalAmount = command.items.sumOf { it.price.multiply(BigDecimal(it.quantity)) }
             .add(command.deliveryFee)
             
@@ -26,7 +32,7 @@ class OrderService(
             userId = userId,
             totalAmount = totalAmount,
             deliveryFee = command.deliveryFee,
-            createdAt = LocalDateTime.now()
+            createdAt = now
         )
         
         val orderItems = command.items.map { 
