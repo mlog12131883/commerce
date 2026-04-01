@@ -235,3 +235,15 @@ nav button:hover, nav button.active {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- Forms & Inputs --- */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  opacity: 1 !important;
+  cursor: pointer;
+}
+
+/* Ensure spinners are visible and have proper spacing in our custom inputs */
+input[type=number] {
+  padding-right: 0.5rem;
+}

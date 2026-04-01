@@ -160,7 +160,10 @@ export default function App() {
   };
 
   const updateAllocation = (id, val) => {
-    setAllocations({ ...allocations, [id]: parseFloat(val) || 0 });
+    let amount = parseFloat(val) || 0;
+    // Round to nearest 1000 as requested by user
+    amount = Math.round(amount / 1000) * 1000;
+    setAllocations({ ...allocations, [id]: amount });
   };
 
   const fillRemaining = (id) => {
@@ -204,7 +207,8 @@ export default function App() {
     setLoading({ ...loading, main: true });
     try {
       const data = await fetchAPI(`/orders/user/${USER_ID}`);
-      setOrderHistory(data);
+      // Show latest orders at the top
+      setOrderHistory([...data].reverse());
       setView('historyView');
     } finally {
       setLoading({ ...loading, main: false });
@@ -243,11 +247,11 @@ export default function App() {
       <header className="glass">
         <div className="logo" onClick={() => setView('productView')}>SleekCommerce</div>
         <nav>
-          <button onClick={() => setView('productView')} className={view === 'productView' ? 'active' : ''}>Store</button>
+          <button onClick={() => setView('productView')} className={view === 'productView' ? 'active' : ''}>상점</button>
           <button onClick={loadCart} className={view === 'cartView' ? 'active' : ''}>
-            Cart ({cart.items.length})
+            장바구니 ({cart.items.length})
           </button>
-          <button onClick={loadHistory} className={view === 'historyView' ? 'active' : ''}>My Orders</button>
+          <button onClick={loadHistory} className={view === 'historyView' ? 'active' : ''}>내 주문</button>
         </nav>
       </header>
 
@@ -266,17 +270,17 @@ export default function App() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
                   <label style={{ color: 'var(--text-dim)', fontWeight: 600 }}>Quantity:</label>
                   <input type="number" id="pQty" defaultValue="1" min="1" max="10" 
-                    style={{ width: '80px', background: 'var(--surface)', border: '2px solid var(--border)', color: '#fff', padding: '0.8rem', borderRadius: 'var(--radius-md)', fontWeight: 700, outline: 'none', textAlign: 'center' }} 
+                    style={{ width: '100px', background: 'var(--surface)', border: '2px solid var(--border)', color: '#fff', padding: '0.8rem 1.5rem 0.8rem 0.8rem', borderRadius: 'var(--radius-md)', fontWeight: 700, outline: 'none', textAlign: 'center' }} 
                   />
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem' }}>
                   <button className="btn btn-outline" onClick={addToCart} disabled={loading.adding}>
-                    <span>Add to Cart</span>
+                    <span>장바구니 담기</span>
                     {loading.adding && <Loader />}
                   </button>
                   <button className="btn btn-primary" onClick={buyNow} disabled={loading.buyingInstantly}>
-                    <span>Buy Now</span>
+                    <span>바로 구매</span>
                     {loading.buyingInstantly && <Loader />}
                   </button>
                 </div>
@@ -306,7 +310,7 @@ export default function App() {
                 ))}
                 <div className="cart-footer">
                   <div className="total-price">₩{cart.totalAmount.toLocaleString()}</div>
-                  <button className="btn btn-primary" onClick={goToCheckout}>Proceed to Checkout</button>
+                  <button className="btn btn-primary" onClick={goToCheckout}>결제하기</button>
                 </div>
               </div>
             )}
@@ -349,12 +353,13 @@ export default function App() {
                     {m.id === 'POINT' && <div style={{ fontSize: '0.8rem', color: 'var(--accent)' }}>Bal: ₩{m.balance.toLocaleString()}</div>}
                   </div>
                   <input type="number" value={allocations[m.id]} onChange={(e) => updateAllocation(m.id, e.target.value)}
-                    style={{ background: 'var(--surface)', border: '2px solid var(--border)', color: '#fff', padding: '0.6rem', borderRadius: '8px', width: '100%', fontFamily: 'inherit', fontWeight: 700, textAlign: 'right', outline: 'none' }} 
+                    step="1000" min="0"
+                    style={{ background: 'var(--surface)', border: '2px solid var(--border)', color: '#fff', padding: '0.6rem 2.5rem 0.6rem 0.6rem', borderRadius: '8px', width: '100%', fontFamily: 'inherit', fontWeight: 700, textAlign: 'right', outline: 'none' }} 
                   />
                   {m.id === 'POINT' ? (
-                    <button className="btn btn-outline btn-sm" onClick={() => useMaxPoints(m.id, m.balance)}>Use Max</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => useMaxPoints(m.id, m.balance)}>전액 사용</button>
                   ) : (
-                    <button className="btn btn-outline btn-sm" onClick={() => fillRemaining(m.id)}>Remaining</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => fillRemaining(m.id)}>남은 금액</button>
                   )}
                 </div>
               ))}
@@ -379,7 +384,7 @@ export default function App() {
 
             <div className="checkout-footer">
               <button className="btn btn-primary" onClick={processPayment} disabled={!isPayReady} style={{ width: '100%', justifyContent: 'center' }}>
-                <span>Pay Now</span>
+                <span>결제하기</span>
                 {loading.paying && <Loader />}
               </button>
             </div>
@@ -407,7 +412,7 @@ export default function App() {
               })}
             </div>
 
-            <button className="btn btn-primary" onClick={loadHistory}>View Order History</button>
+            <button className="btn btn-primary" onClick={loadHistory}>주문 내역 보기</button>
           </div>
         )}
 
@@ -424,7 +429,7 @@ export default function App() {
                       <div style={{ fontWeight: 800, color: 'var(--text-dim)', fontSize: '0.85rem' }}>ORDER ID: {ord.orderId}</div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>{ord.createdAt}</div>
                     </div>
-                    <button className="btn btn-outline btn-sm" onClick={() => prepareClaim(ord)}>Claim Return</button>
+                    <button className="btn btn-outline btn-sm" onClick={() => prepareClaim(ord)}>반품 신청</button>
                   </div>
                   <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
                     {ord.items.map((it, i) => (
@@ -462,7 +467,7 @@ export default function App() {
                         newItems[idx].claimQty = parseInt(e.target.value);
                         setClaimItems(newItems);
                       }}
-                      style={{ width: '60px', background: 'transparent', border: '1px solid var(--border)', color: '#fff', padding: '0.4rem', borderRadius: '6px', textAlign: 'center' }} 
+                      style={{ width: '100px', background: 'transparent', border: '1px solid var(--border)', color: '#fff', padding: '0.4rem 2.5rem 0.4rem 0.4rem', borderRadius: '6px', textAlign: 'center' }} 
                     />
                     <span style={{ color: 'var(--text-dim)', fontSize: '0.8rem' }}> / {it.quantity}</span>
                   </div>
@@ -478,9 +483,9 @@ export default function App() {
              </div>
 
              <div style={{ marginTop: '3rem', textAlign: 'right' }}>
-                <button className="btn btn-outline" onClick={() => setView('historyView')} style={{ marginRight: '1rem' }}>Cancel</button>
+                <button className="btn btn-outline" onClick={() => setView('historyView')} style={{ marginRight: '1rem' }}>취소</button>
                 <button className="btn btn-primary" style={{ background: 'var(--error)' }} onClick={submitClaim}>
-                  <span>Confirm Claim</span>
+                  <span>반품 신청 확인</span>
                   {loading.claiming && <Loader />}
                 </button>
              </div>
