@@ -69,14 +69,15 @@ export default function App() {
   // --- Actions ---
   const addToCart = async () => {
     const qty = parseInt(document.getElementById('pQty')?.value || 1);
+    const opt = document.getElementById('pOpt')?.value;
     setLoading({ ...loading, adding: true });
     try {
       const updatedCart = await fetchAPI(`/cart/${USER_ID}/items`, {
         method: 'POST',
-        body: JSON.stringify({ productId: product.productId, quantity: qty })
+        body: JSON.stringify({ productId: product.productId, quantity: qty, option: opt })
       });
       setCart(updatedCart);
-      alert(`${qty} items added to cart! ✨`);
+      alert(`${qty} items (${opt}) added to cart! ✨`);
     } finally {
       setLoading({ ...loading, adding: false });
     }
@@ -84,11 +85,12 @@ export default function App() {
 
   const buyNow = async () => {
     const qty = parseInt(document.getElementById('pQty')?.value || 1);
+    const opt = document.getElementById('pOpt')?.value;
     setLoading({ ...loading, buyingInstantly: true });
     try {
       const updatedCart = await fetchAPI(`/cart/${USER_ID}/items`, {
         method: 'POST',
-        body: JSON.stringify({ productId: product.productId, quantity: qty })
+        body: JSON.stringify({ productId: product.productId, quantity: qty, option: opt })
       });
       setCart(updatedCart);
       await goToCheckout();

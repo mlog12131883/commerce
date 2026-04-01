@@ -13,6 +13,7 @@ data class Product(
     val name: String = "",
     val description: String = "",
     val price: BigDecimal = BigDecimal.ZERO,
+    val options: List<String> = emptyList(),
     /** 타임딜 시작 시각 */
     val dealStartAt: LocalDateTime = LocalDateTime.now(),
     /** 타임딜 종료 시각 */

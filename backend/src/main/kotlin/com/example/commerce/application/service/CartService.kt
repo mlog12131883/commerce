@@ -15,11 +15,11 @@ class CartService(
 ) : CartUseCase {
 
     @Transactional
-    override fun addToCart(userId: String, productId: String, quantity: Int): Cart {
+    override fun addToCart(userId: String, productId: String, quantity: Int, option: String?): Cart {
         val cart = cartPort.findByUserId(userId).orElse(Cart(userId = userId))
         val product = productPort.findById(productId).orElseThrow { IllegalArgumentException("Product not found: $productId") }
 
-        val existingItem = cart.items.find { it.productId == productId }
+        val existingItem = cart.items.find { it.productId == productId && it.selectedOption == option }
         if (existingItem != null) {
             existingItem.quantity += quantity
         } else {
@@ -28,7 +28,8 @@ class CartService(
                     productId = productId,
                     productName = product.name,
                     price = product.price,
-                    quantity = quantity
+                    quantity = quantity,
+                    selectedOption = option
                 )
             )
         }

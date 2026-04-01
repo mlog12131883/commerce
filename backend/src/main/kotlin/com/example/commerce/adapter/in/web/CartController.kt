@@ -18,7 +18,7 @@ class CartController(
         @PathVariable userId: String,
         @RequestBody req: AddToCartRequest
     ): ResponseEntity<CartResponse> {
-        val cart = cartUseCase.addToCart(userId, req.productId, req.quantity)
+        val cart = cartUseCase.addToCart(userId, req.productId, req.quantity, req.option)
         return ResponseEntity.ok(toResponse(cart))
     }
 
@@ -31,17 +31,18 @@ class CartController(
 
     private fun toResponse(cart: Cart) = CartResponse(
         userId = cart.userId,
-        items = cart.items.map { CartItemResponse(it.productId, it.productName, it.price, it.quantity) },
+        items = cart.items.map { CartItemResponse(it.productId, it.productName, it.price, it.quantity, it.selectedOption) },
         totalAmount = cart.totalAmount
     )
 }
 
 data class AddToCartRequest(
     val productId: String,
-    val quantity: Int
+    val quantity: Int,
+    val option: String? = null
 )
 
-data class CartItemResponse(val productId: String, val productName: String, val price: BigDecimal, val quantity: Int)
+data class CartItemResponse(val productId: String, val productName: String, val price: BigDecimal, val quantity: Int, val selectedOption: String? = null)
 
 data class CartResponse(
     val userId: String,

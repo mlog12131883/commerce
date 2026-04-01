@@ -55,7 +55,7 @@ export default function HistoryView({ orderHistory, claimedOrders, cancelClaimRe
                 transition: 'all 0.2s'
               }}
             >
-              {f === 'ALL' ? '전체' : f === 'COMPLETED' ? '구매 확정' : '반품/취소'}
+              {f === 'ALL' ? '전체' : f === 'COMPLETED' ? '배송 완료' : '반품/취소'}
             </button>
           ))}
         </div>
@@ -66,16 +66,29 @@ export default function HistoryView({ orderHistory, claimedOrders, cancelClaimRe
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {currentOrders.map((ord) => (
-            <div key={ord.orderId} className="list-card glass" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '1rem', borderLeft: ord.isClaimed ? '4px solid var(--error)' : '1px solid var(--border)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
-                    <span style={{ fontWeight: 800, color: 'var(--text)', fontSize: '1rem' }}>주문번호 {getShortId(ord.orderId)}</span>
-                    <span style={{ fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px', background: ord.isClaimed ? 'rgba(239, 64, 64, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: ord.isClaimed ? 'var(--error)' : 'var(--success)' }}>
-                      {ord.isClaimed ? '반품 처리중' : '배송 완료'}
+            <div key={ord.orderId} className="list-card glass" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '1.2rem', padding: '1.8rem', position: 'relative', overflow: 'hidden' }}>
+              {/* Top Accent Decoration */}
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: ord.isClaimed ? 'var(--error)' : 'var(--accent)', opacity: 0.8 }} />
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <span style={{ fontWeight: 800, color: 'var(--text)', fontSize: '1.1rem' }}>Order #{getShortId(ord.orderId)}</span>
+                    <span style={{ 
+                      fontSize: '0.7rem', 
+                      padding: '3px 8px', 
+                      borderRadius: '99px', 
+                      background: ord.isClaimed ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)', 
+                      color: ord.isClaimed ? 'var(--error)' : 'var(--success)',
+                      fontWeight: 800,
+                      textTransform: 'uppercase'
+                    }}>
+                      {ord.isClaimed ? '반품 신청됨' : '구매 확정'}
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>결제일시: {ord.createdAt}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+                    {new Date(ord.createdAt).toLocaleDateString()} · {new Date(ord.createdAt).toLocaleTimeString()}
+                  </div>
                 </div>
                 
                 {ord.isClaimed ? (
@@ -87,17 +100,40 @@ export default function HistoryView({ orderHistory, claimedOrders, cancelClaimRe
                 )}
               </div>
               
-              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+              {/* Item Grouping Container */}
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-md)', padding: '1rem', border: '1px solid var(--border)' }}>
                 {ord.items.map((it, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem' }}>
-                    <span>{it.productId} × {it.quantity}</span>
-                    <span style={{ color: 'var(--text-dim)' }}>₩{it.price.toLocaleString()}</span>
+                  <div key={i} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    padding: i > 0 ? '1rem 0 0' : '0 0',
+                    borderTop: i > 0 ? '1px solid var(--border)' : 'none'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                      <div style={{ width: '40px', height: '40px', background: 'var(--surface)', borderRadius: '8px', display: 'flex', alignItems: 'center', justify: 'center', fontSize: '1.2rem' }}>🕒</div>
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{it.productId}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                          수량: {it.quantity}개 | 옵션: <span style={{ color: 'var(--text)', fontWeight: 600 }}>{it.selectedOption || '기본'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ fontWeight: 700, color: 'var(--text)' }}>
+                      ₩{(it.price * it.quantity).toLocaleString()}
+                    </div>
                   </div>
                 ))}
               </div>
               
-              <div style={{ textAlign: 'right', fontWeight: 800, fontSize: '1.2rem', color: 'var(--accent)', paddingTop: '0.5rem' }}>
-                Total: ₩{ord.totalAmount.toLocaleString()}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: '0.5rem' }}>
+                <div style={{ color: 'var(--text-dim)', fontSize: '0.85rem' }}>총 주문 상품: {ord.items.length}건</div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '0.1rem' }}>Total Amount</div>
+                  <div style={{ fontWeight: 900, fontSize: '1.6rem', color: 'var(--accent)', letterSpacing: '-0.03em' }}>
+                    ₩{ord.totalAmount.toLocaleString()}
+                  </div>
+                </div>
               </div>
             </div>
           ))}

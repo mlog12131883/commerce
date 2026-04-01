@@ -6,5 +6,6 @@ data class OrderItem(
     val orderItemId: Long? = null,
     val productId: String,
     val productPrice: BigDecimal,
-    val quantity: Int
+    val quantity: Int,
+    val selectedOption: String? = null
 )

@@ -16,7 +16,8 @@ data class CartItem(
     val productId: String,
     val productName: String,
     val price: BigDecimal,
-    var quantity: Int
+    var quantity: Int,
+    val selectedOption: String? = null
 )
 
 data class OrderSheet(

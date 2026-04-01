@@ -13,6 +13,17 @@ export default function ProductView({ product, addToCart, buyNow, loading }) {
           <div className="price">₩{product.price.toLocaleString()}</div>
           <p className="desc">{product.description}</p>
           
+          <div style={{ marginBottom: '2rem' }}>
+            <label style={{ color: 'var(--text-dim)', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Size Option:</label>
+            <select id="pOpt" 
+              style={{ width: '100%', background: 'var(--surface)', border: '2px solid var(--border)', color: '#fff', padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', fontWeight: 600, outline: 'none' }}
+            >
+              <option value="S">Small (S)</option>
+              <option value="M">Medium (M)</option>
+              <option value="L">Large (L)</option>
+            </select>
+          </div>
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
             <label style={{ color: 'var(--text-dim)', fontWeight: 600 }}>Quantity:</label>
             <input type="number" id="pQty" defaultValue="1" min="1" max="10" 
