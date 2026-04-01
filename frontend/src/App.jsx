@@ -49,8 +49,36 @@ export default function App() {
   };
 
   useEffect(() => {
-    loadProducts();
-    updateCartCount();
+    const init = async () => {
+      await loadProducts();
+      await updateCartCount();
+      
+      const path = location.pathname;
+      if (path.startsWith('/product/')) {
+        const id = path.split('/').pop();
+        if (id) await loadProduct(id);
+      } else if (path === '/checkout') {
+        const sheet = await fetchAPI(`/checkout/${USER_ID}/sheet`).catch(() => null);
+        if (sheet) {
+          setOrderSheet(sheet);
+          const initialAlloc = {};
+          PAYMENT_METHODS.forEach(m => initialAlloc[m.id] = 0);
+          initialAlloc['CREDIT_CARD'] = sheet.finalAmount;
+          setAllocations(initialAlloc);
+        } else {
+          navigate('/');
+        }
+      } else if (path === '/cart') {
+        // loadCart() is already mostly covered by updateCartCount()
+      } else if (path === '/history') {
+        const data = await fetchAPI(`/orders/user/${USER_ID}`).catch(() => []);
+        setOrderHistory([...data].reverse());
+      } else if (path === '/success') {
+        // Optional: restore last success state if needed, or redirect back to shop
+        // navigate('/'); 
+      }
+    };
+    init();
   }, []);
 
   const loadProducts = async () => {
