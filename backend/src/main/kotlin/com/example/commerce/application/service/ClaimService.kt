@@ -34,7 +34,7 @@ class ClaimService(
         // 실제 앱에서는 주문 항목, 배송비 등의 로직이 포함됩니다.
         // 이 데모에서는 취소 항목이 특정 금액에 매핑된다고 가정합니다.
         // 구현 요구사항: `originalAmount` - (`itemCancelAmount` + ...)
-        val totalRefundNeeded = calculateRefundAmount(orderId, cancelItems)
+        val totalRefundNeeded = calculateRefundAmount(orderId, cancelItems, reason)
 
         println("Claim: Refund needed: $totalRefundNeeded")
 
@@ -58,7 +58,7 @@ class ClaimService(
         }
     }
 
-    private fun calculateRefundAmount(orderId: String, cancelItems: List<CancelItem>): BigDecimal {
+    private fun calculateRefundAmount(orderId: String, cancelItems: List<CancelItem>, reason: String): BigDecimal {
         val order = orderRepository.findById(orderId)
             .orElseThrow { IllegalArgumentException("Order not found: $orderId") }
             
@@ -71,6 +71,15 @@ class ClaimService(
                 throw IllegalArgumentException("Product ${cancelItem.productId} not found in order")
             }
         }
+
+        // 고객 귀책 사유인 경우 반품 배송비 (3,000원) 차감
+        val isCustomerFault = reason.contains("고객 부담")
+        if (isCustomerFault) {
+            val returnShippingFee = BigDecimal("3000")
+            val refundNeeded = sum.subtract(returnShippingFee)
+            return if (refundNeeded > BigDecimal.ZERO) refundNeeded else BigDecimal.ZERO
+        }
+
         return sum
     }
 

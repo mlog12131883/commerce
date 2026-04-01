@@ -34,7 +34,7 @@ class PaymentServiceTest {
     fun `test Atomic Payment - Success`() {
         // Given
         val orderId = "ORD-SUCCESS"
-        val order = Order(orderId = orderId, totalAmount = BigDecimal(15000))
+        val order = Order(orderId = orderId, userId = "USER-1", totalAmount = BigDecimal(15000))
         whenever(orderRepository.findById(orderId)).thenReturn(Optional.of(order))
 
         val requests = listOf(
@@ -60,7 +60,7 @@ class PaymentServiceTest {
     fun `test Atomic Payment - PG Failure triggers Rollback`() {
         // Given
         val orderId = "ORD-FAIL"
-        val order = Order(orderId = orderId, totalAmount = BigDecimal(15000))
+        val order = Order(orderId = orderId, userId = "USER-1", totalAmount = BigDecimal(15000))
         whenever(orderRepository.findById(orderId)).thenReturn(Optional.of(order))
 
         val requests = listOf(

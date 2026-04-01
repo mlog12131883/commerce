@@ -63,7 +63,7 @@ class OrderPaymentClaimIntegrationTest {
             ),
             deliveryFee = BigDecimal(3000)
         )
-        val orderId = orderService.placeOrder(orderCmd)
+        val orderId = orderService.placeOrder("USER-CHOI", orderCmd)
         
         // 3. 결제 처리 (포인트 3,000 + 카드 30,000)
         val paramRequests = listOf(

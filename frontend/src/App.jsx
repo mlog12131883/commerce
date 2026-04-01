@@ -51,10 +51,12 @@ export default function App() {
   const [orderHistory, setOrderHistory] = useState([]);
   const [claimOrder, setClaimOrder] = useState(null);
   const [claimItems, setClaimItems] = useState([]);
+  const [claimReasonType, setClaimReasonType] = useState('변심 (고객 부담, 반품비 3,000원 제외)');
   const [claimReason, setClaimReason] = useState('');
   const [loading, setLoading] = useState({});
   const [lastOrderId, setLastOrderId] = useState(null);
   const [successPayments, setSuccessPayments] = useState([]);
+  const [claimedOrders, setClaimedOrders] = useState(() => JSON.parse(localStorage.getItem('claimedOrders') || '{}'));
 
   // --- API Helpers ---
 
@@ -218,25 +220,39 @@ export default function App() {
   const prepareClaim = (order) => {
     setClaimOrder(order);
     setClaimItems(order.items.map(it => ({ ...it, claimQty: 1 })));
+    setClaimReasonType('변심 (고객 부담, 반품비 3,000원 제외)');
     setClaimReason('');
     setView('claimView');
   };
 
   const submitClaim = async () => {
-    if (!claimReason) return alert('Please enter a reason');
+    if (!claimReason) return alert('상세 사유를 입력해주세요.');
     setLoading({ ...loading, claiming: true });
     try {
       await fetchAPI(`/claims/${claimOrder.orderId}/refund`, {
         method: 'POST',
         body: JSON.stringify({
           cancelItems: claimItems.map(it => ({ productId: it.productId, quantity: it.claimQty })),
-          reason: claimReason
+          reason: `[${claimReasonType}] ${claimReason}`
         })
       });
-      alert('Claim submitted successfully.');
+      alert('반품 신청이 완료되었습니다.');
+      const nextClaimed = { ...claimedOrders, [claimOrder.orderId]: true };
+      setClaimedOrders(nextClaimed);
+      localStorage.setItem('claimedOrders', JSON.stringify(nextClaimed));
       loadHistory();
     } finally {
       setLoading({ ...loading, claiming: false });
+    }
+  };
+
+  const cancelClaimRequest = (orderId) => {
+    if(window.confirm('반품 신청을 취소하시겠습니까?')) {
+        const nextClaimed = { ...claimedOrders };
+        delete nextClaimed[orderId];
+        setClaimedOrders(nextClaimed);
+        localStorage.setItem('claimedOrders', JSON.stringify(nextClaimed));
+        alert('반품 취소가 완료되었습니다.');
     }
   };
 
@@ -429,7 +445,13 @@ export default function App() {
                       <div style={{ fontWeight: 800, color: 'var(--text-dim)', fontSize: '0.85rem' }}>ORDER ID: {ord.orderId}</div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>{ord.createdAt}</div>
                     </div>
-                    <button className="btn btn-outline btn-sm" onClick={() => prepareClaim(ord)}>반품 신청</button>
+                    {claimedOrders[ord.orderId] ? (
+                      <button className="btn btn-outline btn-sm" onClick={() => cancelClaimRequest(ord.orderId)} style={{ borderColor: 'var(--error)', color: 'var(--error)' }}>
+                        반품 취소
+                      </button>
+                    ) : (
+                      <button className="btn btn-outline btn-sm" onClick={() => prepareClaim(ord)}>반품 신청</button>
+                    )}
                   </div>
                   <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
                     {ord.items.map((it, i) => (
@@ -447,8 +469,8 @@ export default function App() {
 
         {view === 'claimView' && claimOrder && (
           <div className="view">
-             <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Request Return</h2>
-             <p style={{ color: 'var(--text-dim)', marginBottom: '3rem' }}>Select items to return and provide a reason.</p>
+             <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>반품 신청</h2>
+             <p style={{ color: 'var(--text-dim)', marginBottom: '3rem' }}>반품할 상품과 사유를 선택해주세요.</p>
              
              <div style={{ marginBottom: '2rem', background: 'var(--card)', padding: '1rem', borderRadius: '12px' }}>
                 Order #{claimOrder.orderId} - Total ₩{claimOrder.totalAmount.toLocaleString()}
@@ -475,10 +497,18 @@ export default function App() {
              ))}
 
              <div style={{ marginTop: '2rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-dim)' }}>Reason for Return</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-dim)' }}>반품 사유 선택</label>
+                <select value={claimReasonType} onChange={(e) => setClaimReasonType(e.target.value)}
+                  style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1rem', color: '#fff', fontSize: '1rem', outline: 'none', marginBottom: '1rem' }}>
+                  <option value="변심 (고객 부담, 반품비 3,000원 제외)">단순 변심 (고객 부담 / 반품 배송비 3,000원 제외 후 환불)</option>
+                  <option value="상품 파손 (당사 부담)">상품 파손 (당사 부담 / 전액 환불)</option>
+                  <option value="오배송 (당사 부담)">오배송 (당사 부담 / 전액 환불)</option>
+                </select>
+
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-dim)' }}>상세 사유</label>
                 <textarea value={claimReason} onChange={(e) => setClaimReason(e.target.value)}
                   style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1rem', color: '#fff', height: '120px', fontFamily: 'inherit', fontSize: '1rem', outline: 'none' }}
-                  placeholder="Tell us why..."
+                  placeholder="상세 사유를 입력해주세요..."
                 />
              </div>
 

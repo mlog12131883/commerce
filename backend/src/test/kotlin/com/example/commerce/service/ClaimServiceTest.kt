@@ -30,10 +30,34 @@ class ClaimServiceTest {
     private val paymentHistoryRepository: PaymentHistoryPort = mock()
     private val refundRepository: RefundPort = mock()
     private val paymentGateway: PaymentGateway = mock()
+    private val orderRepository: com.example.commerce.application.port.out.OrderPort = mock()
 
     @BeforeEach
     fun setup() {
-        claimService = ClaimService(paymentRepository, paymentHistoryRepository, refundRepository, paymentGateway)
+        claimService = ClaimService(paymentRepository, paymentHistoryRepository, refundRepository, paymentGateway, orderRepository)
+
+        // Mock Order
+        val orderItem = com.example.commerce.domain.model.OrderItem(
+            productId = "PROD-A",
+            quantity = 1,
+            productPrice = BigDecimal(10000)
+        )
+        val testOrder = com.example.commerce.domain.model.Order(
+            orderId = "ORD-001",
+            userId = "USER1",
+            items = mutableListOf(orderItem),
+            totalAmount = BigDecimal(10000),
+            deliveryFee = BigDecimal.ZERO
+        )
+        val testOrder3 = com.example.commerce.domain.model.Order(
+            orderId = "ORD-003",
+            userId = "USER1",
+            items = mutableListOf(orderItem),
+            totalAmount = BigDecimal(10000),
+            deliveryFee = BigDecimal.ZERO
+        )
+        whenever(orderRepository.findById("ORD-001")).thenReturn(java.util.Optional.of(testOrder))
+        whenever(orderRepository.findById("ORD-003")).thenReturn(java.util.Optional.of(testOrder3))
         
         // Mock save to return the object
         whenever(paymentRepository.save(any())).thenAnswer { it.arguments[0] }
