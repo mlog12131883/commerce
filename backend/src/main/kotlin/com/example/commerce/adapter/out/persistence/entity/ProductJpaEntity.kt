@@ -33,6 +33,9 @@ class ProductJpaEntity(
 
     /** 타임딜 종료 시각 */
     @Column(nullable = false)
-    var dealEndAt: LocalDateTime
+    var dealEndAt: LocalDateTime,
+
+    @Column(nullable = true, length = 500)
+    var options: String? = null
 
 ) : TimeComponent()

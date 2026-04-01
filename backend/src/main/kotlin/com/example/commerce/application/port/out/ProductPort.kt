@@ -9,4 +9,5 @@ import java.util.Optional
 interface ProductPort {
     fun save(product: Product): Product
     fun findById(productId: String): Optional<Product>
+    fun findAll(): List<Product>
 }

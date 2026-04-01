@@ -32,14 +32,14 @@ class ProductService(
     private val cacheEvictPublisher: CacheEvictPublisher
 ) {
 
-    /**
-     * 타임딜 상품 상세 조회.
-     * COMPOSITE 캐시(L1+L2)를 통해 L1 히트 시 즉시 반환, L1 미스 시 L2 조회 후 L1 자동 적재.
-     */
     @Cacheable(cacheNames = [CacheNames.PRODUCT_DETAIL], key = "#productId")
     fun getProduct(productId: String): Product {
         return productPort.findById(productId)
             .orElseThrow { IllegalArgumentException("Product not found: $productId") }
+    }
+
+    fun getAllProducts(): List<Product> {
+        return productPort.findAll()
     }
 
     /**

@@ -26,4 +26,8 @@ class ProductPersistenceAdapter(
     override fun findById(productId: String): Optional<Product> {
         return productRepository.findById(productId).map { productMapper.toDomain(it) }
     }
+
+    override fun findAll(): List<Product> {
+        return productRepository.findAll().map { productMapper.toDomain(it) }
+    }
 }

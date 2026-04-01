@@ -6,21 +6,23 @@ export default function ProductView({ product, addToCart, buyNow, loading }) {
   return (
     <div className="view">
       <div className="product-hero">
-        <div className="product-image">⌚</div>
+        <div className="product-image">{product.name.toLowerCase().includes('hoodie') ? '👕' : '⌚'}</div>
         <div className="product-info">
-          <Badge>Limited Edition</Badge>
+          <Badge>{product.name.toLowerCase().includes('hoodie') ? 'Essentials' : 'Limited'}</Badge>
           <h1>{product.name}</h1>
           <div className="price">₩{product.price.toLocaleString()}</div>
           <p className="desc">{product.description}</p>
           
           <div style={{ marginBottom: '2rem' }}>
-            <label style={{ color: 'var(--text-dim)', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Size Option:</label>
+            <label style={{ color: 'var(--text-dim)', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Options:</label>
             <select id="pOpt" 
               style={{ width: '100%', background: 'var(--surface)', border: '2px solid var(--border)', color: '#fff', padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', fontWeight: 600, outline: 'none' }}
             >
-              <option value="S">Small (S)</option>
-              <option value="M">Medium (M)</option>
-              <option value="L">Large (L)</option>
+              {product.options && product.options.length > 0 ? (
+                product.options.map(opt => <option key={opt} value={opt}>{opt}</option>)
+              ) : (
+                <option value="Default">Default Option</option>
+              )}
             </select>
           </div>
 

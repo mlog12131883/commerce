@@ -15,6 +15,7 @@ class ProductMapper {
         name = entity.name,
         description = entity.description,
         price = entity.price,
+        options = entity.options?.split(",") ?: emptyList(),
         dealStartAt = entity.dealStartAt,
         dealEndAt = entity.dealEndAt,
         createdAt = entity.createdAt,
@@ -27,6 +28,7 @@ class ProductMapper {
         description = domain.description,
         price = domain.price,
         dealStartAt = domain.dealStartAt,
-        dealEndAt = domain.dealEndAt
+        dealEndAt = domain.dealEndAt,
+        options = domain.options.joinToString(",")
     )
 }

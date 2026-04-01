@@ -16,6 +16,7 @@ export default function App() {
   const location = useLocation();
   
   const [product, setProduct] = useState(null);
+  const [products, setProducts] = useState([]);
   const [cart, setCart] = useState({ items: [], totalAmount: 0 });
   const [orderSheet, setOrderSheet] = useState(null);
   const [allocations, setAllocations] = useState({});
@@ -48,13 +49,20 @@ export default function App() {
   };
 
   useEffect(() => {
-    loadProduct();
+    loadProducts();
     updateCartCount();
   }, []);
 
-  const loadProduct = async () => {
+  const loadProducts = async () => {
     try {
-      const data = await fetchAPI('/products/PROD-APEX-001');
+      const data = await fetchAPI('/products');
+      setProducts(data);
+    } catch (e) {}
+  };
+
+  const loadProduct = async (id) => {
+    try {
+      const data = await fetchAPI(`/products/${id}`);
       setProduct(data);
     } catch (e) {}
   };
@@ -233,7 +241,24 @@ export default function App() {
       </header>
       <div className="container">
         <Routes>
-          <Route path="/" element={<ProductView product={product} addToCart={addToCart} buyNow={buyNow} loading={loading} />} />
+          <Route path="/" element={
+            <div className="view">
+              <h2 style={{ fontSize: '2.5rem', marginBottom: '2rem' }}>추천 상품</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
+                {products.map(p => (
+                  <div key={p.productId} className="list-card glass" style={{ flexDirection: 'column', cursor: 'pointer', transition: '0.3s', padding: '1.5rem' }} onClick={() => { setProduct(p); navigate('/product/' + p.productId); }}>
+                    <div style={{ fontSize: '4rem', marginBottom: '1rem', textAlign: 'center', background: 'var(--surface)', borderRadius: 'var(--radius-md)', padding: '2rem' }}>
+                      {p.name.toLowerCase().includes('hoodie') ? '👕' : '⌚'}
+                    </div>
+                    <h3 style={{ marginBottom: '0.5rem' }}>{p.name}</h3>
+                    <div className="price" style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>₩{p.price.toLocaleString()}</div>
+                    <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', height: '3rem', overflow: 'hidden' }}>{p.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          } />
+          <Route path="/product/:id" element={<ProductView product={product} addToCart={addToCart} buyNow={buyNow} loading={loading} />} />
           <Route path="/cart" element={<CartView cart={cart} goToCheckout={goToCheckout} />} />
           <Route path="/checkout" element={
             orderSheet ? (
