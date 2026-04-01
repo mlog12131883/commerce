@@ -13,12 +13,45 @@ export default function CartView({ cart, goToCheckout }) {
       ) : (
         <div>
           {cart.items.map((item, idx) => (
-            <div key={idx} className="list-card glass">
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '1.2rem' }}>{item.productName}</div>
-                <div style={{ color: 'var(--text-dim)' }}>Qty: {item.quantity} × ₩{item.price.toLocaleString()}</div>
+            <div key={idx} className="list-card glass" style={{ 
+              marginBottom: '1rem', 
+              padding: '1.5rem', 
+              borderRadius: 'var(--radius-md)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              gap: '1.5rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flex: 1 }}>
+                <div style={{ 
+                  width: '64px', 
+                  height: '64px', 
+                  background: 'var(--surface)', 
+                  borderRadius: '12px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  fontSize: '2rem' 
+                }}>
+                  {item.productName.toLowerCase().includes('hoodie') ? '👕' : '⌚'}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.3rem', letterSpacing: '-0.02em' }}>
+                    {item.productName}
+                  </div>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', fontSize: '0.9rem' }}>
+                    <span style={{ color: 'var(--text-dim)' }}>수량: <strong style={{ color: 'var(--text)' }}>{item.quantity}</strong></span>
+                    <span style={{ height: '4px', width: '4px', borderRadius: '50%', background: 'var(--border)' }}></span>
+                    <span style={{ color: 'var(--text-dim)' }}>옵션: <strong style={{ color: 'var(--accent)', textTransform: 'uppercase' }}>{item.selectedOption || 'Default'}</strong></span>
+                  </div>
+                </div>
               </div>
-              <div style={{ fontWeight: 800, fontSize: '1.4rem' }}>₩{(item.price * item.quantity).toLocaleString()}</div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '0.2rem' }}>Subtotal</div>
+                <div style={{ fontWeight: 900, fontSize: '1.4rem', color: '#fff' }}>
+                  ₩{(item.price * item.quantity).toLocaleString()}
+                </div>
+              </div>
             </div>
           ))}
           <div className="cart-footer">

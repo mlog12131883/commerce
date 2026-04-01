@@ -38,5 +38,8 @@ data class CartItemJpaEntity(
     val price: BigDecimal,
 
     @Column(nullable = false)
-    var quantity: Int
+    var quantity: Int,
+
+    @Column(nullable = true)
+    val selectedOption: String? = null
 )

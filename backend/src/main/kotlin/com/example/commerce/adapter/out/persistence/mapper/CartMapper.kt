@@ -18,7 +18,8 @@ class CartMapper {
                     productId = it.productId,
                     productName = it.productName,
                     price = it.price,
-                    quantity = it.quantity
+                    quantity = it.quantity,
+                    selectedOption = it.selectedOption
                 )
             }.toMutableList()
         )
@@ -36,7 +37,8 @@ class CartMapper {
                 productId = it.productId,
                 productName = it.productName,
                 price = it.price,
-                quantity = it.quantity
+                quantity = it.quantity,
+                selectedOption = it.selectedOption
             )
         })
         return entity
