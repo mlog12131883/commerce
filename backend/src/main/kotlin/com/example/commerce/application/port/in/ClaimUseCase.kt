@@ -4,4 +4,5 @@ import com.example.commerce.application.command.CancelItem
 
 interface ClaimUseCase {
     fun requestClaim(orderId: String, cancelItems: List<CancelItem>, reason: String)
+    fun confirmCollectionSimulation(orderId: String)
 }

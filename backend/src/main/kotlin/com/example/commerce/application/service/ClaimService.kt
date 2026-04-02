@@ -52,31 +52,59 @@ class ClaimService(
 
         println("Claim: Item Cancel Sum: $itemCancelSum, Shipping Fee: $returnShippingFee, Net Refund: $totalRefundNeeded")
 
-        // 4. 환불 프로세스 진행
+        // 4. 상태 업데이트 (주문 상태)
+        order.status = if (isCustomerFault) OrderStatus.COLLECTING else OrderStatus.RETURN_PENDING
+        orderRepository.save(order)
+
+        println("Claim requested for $orderId. Net Refund to be processed after collection: $totalRefundNeeded")
+    }
+
+    @Transactional
+    override fun confirmCollectionSimulation(orderId: String) {
+        val order = orderRepository.findById(orderId)
+            .orElseThrow { IllegalArgumentException("Order not found: $orderId") }
+
+        println("Admin Simulation: Confirming collection for $orderId")
+
+        // 1. 상태 업데이트
+        order.status = OrderStatus.RETURN_CONFIRMED
+        orderRepository.save(order)
+
+        // 2. 최종 환불 처리 (여기서 실제 PG 연동 및 데이터 업데이트 수행)
+        // 실제 운영 환경에서는 배치나 이벤트 기반으로 처리될 로직을 즉시 실행
+        processFinalRefund(order)
+    }
+
+    private fun processFinalRefund(order: Order) {
+        val orderId = order.orderId
+        val payments = paymentRepository.findByOrderId(orderId)
+            .filter { it.status == PaymentStatus.APPROVED || it.status == PaymentStatus.PARTIAL_CANCELED }
+            .sortedBy { if (it.paymentMethod == PaymentMethod.POINT) 0 else 1 }
+
+        if (payments.isEmpty()) return
+
+        // 환불 금액 재설정 (여기서는 데모를 위해 고정 로직 사용)
+        // 실제는 클레임 요청 시 저장된 정보를 바탕으로 실행해야 함
+        val itemCancelSum = order.items.fold(BigDecimal.ZERO) { acc, it -> acc.add(it.productPrice.multiply(BigDecimal(it.quantity))) }
+        val isCustomerFault = true // Simulating simple case
+        val returnShippingFee = if (isCustomerFault) BigDecimal("3000") else BigDecimal.ZERO
+        val totalRefundNeeded = itemCancelSum.subtract(returnShippingFee)
+
         if (totalRefundNeeded > BigDecimal.ZERO) {
-            // 일반적인 환불 상황 (Waterfall)
             var remainingToRefund = totalRefundNeeded
             for (payment in payments) {
                 if (remainingToRefund <= BigDecimal.ZERO) break
                 val refundable = payment.repaymentAmount
                 val refundAmount = if (remainingToRefund >= refundable) refundable else remainingToRefund
                 
-                processRefund(payment, refundAmount, reason)
+                processRefund(payment, refundAmount, "Admin Simulation - Refund")
                 remainingToRefund = remainingToRefund.subtract(refundAmount)
             }
-        } else if (totalRefundNeeded < BigDecimal.ZERO) {
-            // 추가 결제가 필요한 상황 (배송비가 환불금보다 큼)
-            // 이 데모에서는 주 결제 수단(첫번째 비-포인트 결제)에 배송비를 가산하여 재결제하는 방식으로 처리
-            val mainPayment = payments.find { it.paymentMethod != PaymentMethod.POINT } ?: payments[0]
-            val additionalCharge = totalRefundNeeded.abs()
-            
-            println("Additional Charge Needed: $additionalCharge. Re-auth strategy will be used.")
-            forceRechargeForShipping(mainPayment, additionalCharge, reason)
-        } else {
-            // 환불금액 0 (상품가 == 배송비)
-            // 결제 수단 중 하나를 골라 금액 변동 없이 재승인하거나, 부분취소 로직만 태움 (0원 취소)
-            println("Refund amount is zero. No financial transaction needed or 0-won partial cancel.")
         }
+        
+        // 최종적으로 모든 아이템이 취소되었는지 확인 (데모용 단순 판단)
+        order.status = OrderStatus.CANCELED
+        orderRepository.save(order)
     }
 
     private fun forceRechargeForShipping(payment: Payment, extraAmount: BigDecimal, reason: String) {

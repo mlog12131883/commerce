@@ -21,6 +21,12 @@ class ClaimController(
         claimUseCase.requestClaim(orderId, cancelItems, req.reason)
         return ResponseEntity.ok(MessageResponse("Refund request processed successfully."))
     }
+
+    @PostMapping("/{orderId}/confirm-collection")
+    fun confirmCollection(@PathVariable orderId: String): ResponseEntity<MessageResponse> {
+        claimUseCase.confirmCollectionSimulation(orderId)
+        return ResponseEntity.ok(MessageResponse("Collection confirmed via simulation."))
+    }
 }
 
 data class ClaimRequest(

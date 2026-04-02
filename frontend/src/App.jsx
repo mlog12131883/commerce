@@ -255,6 +255,19 @@ export default function App() {
     }
   };
 
+  const confirmCollectionSimulation = async (orderId) => {
+    setLoading({ ...loading, main: true });
+    try {
+      await fetchAPI(`/claims/${orderId}/confirm-collection`, {
+        method: 'POST'
+      });
+      alert('회수 확정 및 환불 처리가 완료되었습니다. (시뮬레이션)');
+      loadHistory();
+    } finally {
+      setLoading({ ...loading, main: false });
+    }
+  };
+
   return (
     <div className="app">
       <header className="glass">
@@ -302,7 +315,7 @@ export default function App() {
               <SuccessView lastOrderId={lastOrderId} successPayments={successPayments} loadHistory={loadHistory} />
             ) : <Navigate to="/" />
           } />
-          <Route path="/history" element={<HistoryView orderHistory={orderHistory} claimedOrders={claimedOrders} cancelClaimRequest={cancelClaimRequest} prepareClaim={prepareClaim} />} />
+          <Route path="/history" element={<HistoryView orderHistory={orderHistory} claimedOrders={claimedOrders} cancelClaimRequest={cancelClaimRequest} prepareClaim={prepareClaim} confirmCollectionSimulation={confirmCollectionSimulation} />} />
           <Route path="/claim" element={
             claimOrder ? (
               <ClaimView 

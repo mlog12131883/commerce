@@ -9,5 +9,6 @@ data class Order(
     val items: MutableList<OrderItem> = mutableListOf(),
     val totalAmount: BigDecimal,
     var deliveryFee: BigDecimal = BigDecimal.ZERO,
+    var status: OrderStatus = OrderStatus.PAYMENT_FINISHED,
     val createdAt: LocalDateTime = LocalDateTime.now()
 )

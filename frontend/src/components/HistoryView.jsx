@@ -2,21 +2,15 @@ import React, { useState } from 'react';
 import { Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getProductIcon } from './Shared';
 
-export default function HistoryView({ orderHistory, claimedOrders, cancelClaimRequest, prepareClaim }) {
+export default function HistoryView({ orderHistory, claimedOrders, cancelClaimRequest, prepareClaim, confirmCollectionSimulation }) {
   const [filter, setFilter] = useState('ALL'); // ALL, COMPLETED, CLAIMED
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Enhance orders with claim status
-  const enhancedOrders = orderHistory.map(ord => ({
-    ...ord,
-    isClaimed: !!claimedOrders[ord.orderId]
-  }));
-
   // Filtering
-  const filteredOrders = enhancedOrders.filter(ord => {
-    if (filter === 'COMPLETED') return !ord.isClaimed;
-    if (filter === 'CLAIMED') return ord.isClaimed;
+  const filteredOrders = orderHistory.filter(ord => {
+    if (filter === 'COMPLETED') return ord.status === 'PAYMENT_FINISHED';
+    if (filter === 'CLAIMED') return ord.status !== 'PAYMENT_FINISHED';
     return true;
   });
 
@@ -69,7 +63,7 @@ export default function HistoryView({ orderHistory, claimedOrders, cancelClaimRe
           {currentOrders.map((ord) => (
             <div key={ord.orderId} className="list-card glass" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '1.2rem', padding: '1.8rem', position: 'relative', overflow: 'hidden' }}>
               {/* Top Accent Decoration */}
-              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: ord.isClaimed ? 'var(--error)' : 'var(--accent)', opacity: 0.8 }} />
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: ord.status !== 'PAYMENT_FINISHED' ? 'var(--error)' : 'var(--accent)', opacity: 0.8 }} />
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
@@ -79,12 +73,19 @@ export default function HistoryView({ orderHistory, claimedOrders, cancelClaimRe
                       fontSize: '0.7rem', 
                       padding: '3px 8px', 
                       borderRadius: '99px', 
-                      background: ord.isClaimed ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)', 
-                      color: ord.isClaimed ? 'var(--error)' : 'var(--success)',
+                      background: ord.status === 'CANCELED' ? 'rgba(239, 68, 68, 0.15)' : 
+                                 ord.status === 'COLLECTING' || ord.status === 'RETURN_PENDING' ? 'rgba(245, 158, 11, 0.15)' :
+                                 'rgba(16, 185, 129, 0.15)', 
+                      color: ord.status === 'CANCELED' ? 'var(--error)' : 
+                             ord.status === 'COLLECTING' || ord.status === 'RETURN_PENDING' ? 'var(--warning)' : 
+                             'var(--success)',
                       fontWeight: 800,
                       textTransform: 'uppercase'
                     }}>
-                      {ord.isClaimed ? '반품 신청됨' : '구매 확정'}
+                      {ord.status === 'CANCELED' ? '취소 완료' : 
+                       ord.status === 'COLLECTING' ? '회수 중' : 
+                       ord.status === 'RETURN_PENDING' ? '반품 진행 중' : 
+                       ord.status === 'RETURN_CONFIRMED' ? '회수 확정' : '결제 완료'}
                     </span>
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
@@ -92,11 +93,16 @@ export default function HistoryView({ orderHistory, claimedOrders, cancelClaimRe
                   </div>
                 </div>
                 
-                {ord.isClaimed ? (
-                  <button className="btn btn-outline btn-sm" onClick={() => cancelClaimRequest(ord.orderId)} style={{ borderColor: 'var(--error)', color: 'var(--error)' }}>
-                    반품 취소
-                  </button>
-                ) : (
+                {(ord.status === 'COLLECTING' || ord.status === 'RETURN_PENDING') ? (
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button className="btn btn-primary btn-sm" onClick={() => confirmCollectionSimulation(ord.orderId)} style={{ background: 'var(--accent)' }}>
+                      회수 확정 시뮬레이션
+                    </button>
+                    <button className="btn btn-outline btn-sm" onClick={() => cancelClaimRequest(ord.orderId)} style={{ borderColor: 'var(--error)', color: 'var(--error)' }}>
+                      반품 취소
+                    </button>
+                  </div>
+                ) : ord.status === 'PAYMENT_FINISHED' && (
                   <button className="btn btn-outline btn-sm" onClick={() => prepareClaim(ord)}>반품 신청</button>
                 )}
               </div>

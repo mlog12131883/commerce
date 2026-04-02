@@ -19,6 +19,7 @@ class OrderManagementController(
     private fun toResponse(order: Order) = OrderResponse(
         orderId = order.orderId,
         totalAmount = order.totalAmount,
+        status = order.status.name,
         createdAt = order.createdAt.toString(),
         items = order.items.map { OrderItemResponse(it.productId, it.productPrice, it.quantity) }
     )
@@ -27,6 +28,7 @@ class OrderManagementController(
 data class OrderResponse(
     val orderId: String,
     val totalAmount: java.math.BigDecimal,
+    val status: String,
     val createdAt: String,
     val items: List<OrderItemResponse>
 )

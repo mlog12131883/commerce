@@ -24,6 +24,7 @@ class OrderMapper {
             }.toMutableList(),
             totalAmount = entity.totalAmount,
             deliveryFee = entity.deliveryFee,
+            status = entity.status,
             createdAt = entity.createdAt
         )
     }
@@ -34,6 +35,7 @@ class OrderMapper {
             userId = domain.userId,
             totalAmount = domain.totalAmount,
             deliveryFee = domain.deliveryFee,
+            status = domain.status,
             createdAt = domain.createdAt
         )
         

@@ -23,6 +23,10 @@ data class OrderJpaEntity(
     @Column(nullable = false)
     var deliveryFee: BigDecimal = BigDecimal.ZERO,
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var status: com.example.commerce.domain.model.OrderStatus = com.example.commerce.domain.model.OrderStatus.PAYMENT_FINISHED,
+
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
 )
